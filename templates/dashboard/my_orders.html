@@ -29,7 +29,7 @@
               {% for item in order.items.all|slice:":3" %}
               <div class="d-flex align-items-center gap-2">
                 <div style="width:44px;height:44px;border-radius:8px;overflow:hidden;background:var(--kk-gray-100);flex-shrink:0;">
-                  {% if item.product and item.product.image %}<img src="{{ item.product.image.url }}" style="width:100%;height:100%;object-fit:cover;">{% endif %}
+                  <img src="{% if item.product %}{{ item.product.get_main_image_url }}{% else %}/static/images/placeholder.svg{% endif %}" style="width:100%;height:100%;object-fit:cover;" alt="{{ item.product_name }}" onerror="this.src='/static/images/placeholder.svg'">
                 </div>
                 <div>
                   <div class="fw-600 text-truncate" style="font-size:13px;max-width:150px;">{{ item.product_name }}</div>

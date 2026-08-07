@@ -52,8 +52,7 @@
           <td>
             <div class="d-flex align-items-center gap-3">
               <div style="width:48px;height:48px;border-radius:10px;overflow:hidden;background:#090e1a;flex-shrink:0;">
-                {% if prod.image %}<img src="{{ prod.image.url }}" style="width:100%;height:100%;object-fit:cover;">
-                {% else %}<div class="d-flex align-items-center justify-content-center h-100 text-muted"><i class="bi bi-image"></i></div>{% endif %}
+                <img src="{{ prod.get_main_image_url }}" style="width:100%;height:100%;object-fit:cover;" alt="{{ prod.name }}" onerror="this.src='/static/images/placeholder.svg'">
               </div>
               <div>
                 <div class="fw-700 text-white">{{ prod.name }}</div>

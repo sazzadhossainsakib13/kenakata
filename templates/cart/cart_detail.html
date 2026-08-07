@@ -31,11 +31,7 @@
                   <td class="py-3 px-4">
                     <div class="d-flex align-items-center gap-3">
                       <a href="{{ item.product.get_absolute_url }}">
-                        {% if item.product.image %}
-                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width:72px;height:72px;object-fit:cover;border-radius:10px;">
-                        {% else %}
-                        <div style="width:72px;height:72px;background:var(--kk-gray-100);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--kk-gray-300);"><i class="bi bi-image"></i></div>
-                        {% endif %}
+                        <img src="{{ item.product.get_main_image_url }}" alt="{{ item.product.name }}" style="width:72px;height:72px;object-fit:cover;border-radius:10px;" onerror="this.src='/static/images/placeholder.svg'">
                       </a>
                       <div>
                         <a href="{{ item.product.get_absolute_url }}" class="fw-600 d-block mb-1" style="font-size:14px;color:var(--kk-gray-800);text-decoration:none;">{{ item.product.name }}</a>

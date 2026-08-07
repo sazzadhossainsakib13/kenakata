@@ -23,15 +23,7 @@
     <div class="col-lg-5">
       <div class="product-gallery">
         <div class="gallery-main" id="mainImageContainer">
-          {% if product.image %}
-          <img src="{{ product.image.url }}" alt="{{ product.name }}" id="mainImage">
-          {% elif images %}
-          <img src="{{ images.0.image.url }}" alt="{{ product.name }}" id="mainImage">
-          {% else %}
-          <div class="product-card-placeholder" style="height:400px;font-size:80px;">
-            <i class="bi bi-image"></i>
-          </div>
-          {% endif %}
+          <img src="{{ product.get_main_image_url }}" alt="{{ product.name }}" id="mainImage" onerror="this.src='/static/images/placeholder.svg'">
           {% if product.discount_percentage > 0 %}
           <div class="position-absolute" style="top:16px;left:16px;">
             <span class="badge-discount" style="font-size:14px;padding:6px 14px;">{{ product.discount_percentage }}% OFF</span>
@@ -369,11 +361,7 @@
           {% for rp in related_products|slice:":5" %}
           <a href="{{ rp.get_absolute_url }}" class="d-flex align-items-center gap-3 p-3 border-bottom" style="text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='var(--kk-gray-50)'" onmouseout="this.style.background=''">
             <div style="width:60px;height:60px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--kk-gray-50);">
-              {% if rp.image %}
-              <img src="{{ rp.image.url }}" style="width:100%;height:100%;object-fit:cover;" alt="{{ rp.name }}">
-              {% else %}
-              <div class="d-flex align-items-center justify-content-center h-100" style="color:var(--kk-gray-300);font-size:24px;"><i class="bi bi-image"></i></div>
-              {% endif %}
+              <img src="{{ rp.get_main_image_url }}" style="width:100%;height:100%;object-fit:cover;" alt="{{ rp.name }}" onerror="this.src='/static/images/placeholder.svg'">
             </div>
             <div class="flex-grow-1 min-width-0">
               <div class="fw-600 text-truncate" style="font-size:13px;color:var(--kk-gray-800);">{{ rp.name }}</div>

@@ -517,12 +517,14 @@ class Command(BaseCommand):
                     'best_seller': data.get('best_seller', False),
                     'average_rating': Decimal(str(data.get('rating', 0))),
                     'review_count': data.get('reviews', 0),
-                    'sold_count': data.get('sold', 0),
-                    'short_description': data.get('short_desc', ''),
-                    'description': data.get('desc', ''),
                     'active': True,
                 }
             )
+
+            # Assign high-res CDN product image URL
+            if not product.image_url:
+                product.image_url = product.get_main_image_url()
+                product.save(update_fields=['image_url'])
 
             if created:
                 # Create specs
