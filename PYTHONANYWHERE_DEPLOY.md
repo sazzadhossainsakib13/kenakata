@@ -1,88 +1,81 @@
-# 🐍 PythonAnywhere Deployment Guide for KenaKata
+# 🐍 PythonAnywhere Deployment Guide for sazzad
 
-Deploying **KenaKata** on **PythonAnywhere** takes only 5 minutes. Follow this exact step-by-step guide.
-
----
-
-## 📋 Step 1: Create a Free Account
-1. Go to [https://www.pythonanywhere.com/](https://www.pythonanywhere.com/) and register for a free **"Beginner"** account.
-2. Remember your **username** (your live URL will be `https://yourusername.pythonanywhere.com`).
+> **Your Live URL**: [https://sazzad.pythonanywhere.com/](https://sazzad.pythonanywhere.com/)
 
 ---
 
-## 💻 Step 2: Open a Bash Console & Clone the Code
+## 💻 Step 1: Open Bash Console & Run Setup Commands
 
-1. In your PythonAnywhere dashboard, click on **Consoles** tab -> click **Bash**.
-2. In the terminal, run the following commands:
+1. Go to [https://www.pythonanywhere.com/](https://www.pythonanywhere.com/) and log in as **`sazzad`**.
+2. Click on the **Consoles** tab and click on **Bash**.
+3. Copy and paste the following block into the Bash terminal:
 
 ```bash
-# 1. Clone the GitHub repository
+# 1. Clone your GitHub repository
 git clone https://github.com/sazzadhossainsakib13/kenakata.git
 
-# 2. Navigate to project folder
+# 2. Go into project directory
 cd kenakata
 
-# 3. Create a Python 3.10 virtual environment
+# 3. Create Python 3.10 virtual environment
 mkvirtualenv --python=/usr/bin/python3.10 kenakata-venv
 
 # 4. Install dependencies
 pip install -r requirements.txt
 
-# 5. Run migrations & collect static files
+# 5. Run database migrations & collect static files
 python manage.py migrate
 python manage.py collectstatic --noinput
 
-# 6. Create your Superuser / Admin account
+# 6. Create your Superuser Admin account (enter your desired username/password)
 python manage.py createsuperuser
 ```
 
 ---
 
-## 🌐 Step 3: Configure the Web App
+## 🌐 Step 2: Create the Web App
 
-1. Go back to your PythonAnywhere dashboard and click on the **Web** tab.
+1. Click on the **Web** tab at the top.
 2. Click **Add a new web app**.
-3. Choose **Manual configuration** (do **NOT** select Django, select *Manual configuration*).
+3. Choose **Manual configuration** *(Important: Do NOT choose Django, choose "Manual configuration")*.
 4. Choose **Python 3.10**.
-5. Click **Next** to complete the wizard.
+5. Click **Next** to finish the wizard.
 
 ---
 
-## ⚙️ Step 4: Configure Virtualenv & Paths
+## ⚙️ Step 3: Configure Paths & Static Files for `sazzad`
 
-In the **Web** tab, scroll down and fill in these exact sections:
+On the **Web** tab page, scroll down and set these exact paths:
 
 ### 1. Code Section:
-* **Source code**: `/home/yourusername/kenakata`
-* **Working directory**: `/home/yourusername/kenakata`
+* **Source code**: `/home/sazzad/kenakata`
+* **Working directory**: `/home/sazzad/kenakata`
 
 ### 2. Virtualenv Section:
-* **Virtualenv**: `/home/yourusername/.virtualenvs/kenakata-venv`
-*(Or simply type `kenakata-venv` and press checkmark)*
+* **Virtualenv**: `/home/sazzad/.virtualenvs/kenakata-venv`
+*(Or simply type `kenakata-venv` and click the blue checkmark)*
 
 ### 3. Static files Section:
-Add these 2 rows in the Static files table:
+Add these **2 exact rows** in the Static files table:
 
 | URL | Directory |
 |---|---|
-| `/static/` | `/home/yourusername/kenakata/staticfiles` |
-| `/media/` | `/home/yourusername/kenakata/media` |
-
-*(Replace `yourusername` with your actual PythonAnywhere username)*
+| `/static/` | `/home/sazzad/kenakata/staticfiles` |
+| `/media/` | `/home/sazzad/kenakata/media` |
 
 ---
 
-## 📝 Step 5: Edit the WSGI Configuration File
+## 📝 Step 4: Edit the WSGI Configuration File
 
-1. In the **Web** tab, under the **Code** section, click on the **WSGI configuration file** link (e.g., `/var/www/yourusername_pythonanywhere_com_wsgi.py`).
-2. Delete everything inside that file and paste the following:
+1. In the **Web** tab under the **Code** section, click on the **WSGI configuration file** link (`/var/www/sazzad_pythonanywhere_com_wsgi.py`).
+2. Delete everything currently inside that file and paste this exact code:
 
 ```python
 import os
 import sys
 
 # Path to your project directory
-path = '/home/yourusername/kenakata'
+path = '/home/sazzad/kenakata'
 if path not in sys.path:
     sys.path.append(path)
 
@@ -93,20 +86,18 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'sazzcommerce.settings'
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
 ```
-*(Remember to replace `yourusername` with your real username on line 5)*
 
 3. Click **Save** (top right).
 
 ---
 
-## 🚀 Step 6: Reload and Visit Your Live Site!
+## 🚀 Step 5: Reload and View Your Live Website!
 
 1. Go back to the **Web** tab.
-2. Click the big green button: **Reload yourusername.pythonanywhere.com**.
-3. Open your browser and navigate to:
-   * **Marketplace**: `https://yourusername.pythonanywhere.com/`
-   * **POS Terminal**: `https://yourusername.pythonanywhere.com/pos/terminal/`
-   * **POS Dashboard**: `https://yourusername.pythonanywhere.com/pos/`
-   * **Admin Panel**: `https://yourusername.pythonanywhere.com/admin/`
-
-🎉 **Your KenaKata store is now LIVE for the world to see!**
+2. Click the green button: **Reload sazzad.pythonanywhere.com**.
+3. Visit your live store:
+   * 🛍️ **Marketplace**: `https://sazzad.pythonanywhere.com/`
+   * 🛒 **Shop & Catalog**: `https://sazzad.pythonanywhere.com/shop/`
+   * 🖥️ **POS Terminal**: `https://sazzad.pythonanywhere.com/pos/terminal/`
+   * 📈 **Sales History**: `https://sazzad.pythonanywhere.com/pos/sales/`
+   * 🛡️ **Django Admin**: `https://sazzad.pythonanywhere.com/admin/`
