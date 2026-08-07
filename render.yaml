@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: kenakata
+    runtime: python
+    region: singapore
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn sazzcommerce.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.12
+      - key: DEBUG
+        value: "True"
+      - key: SECRET_KEY
+        generateValue: true
