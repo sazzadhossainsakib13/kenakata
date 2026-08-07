@@ -131,6 +131,18 @@ class OrderItem(models.Model):
     def __str__(self):
         return f"{self.quantity}x {self.product_name}"
 
+    @property
+    def product_name_snapshot(self):
+        return self.product_name
+
+    @property
+    def line_total(self):
+        return self.subtotal
+
+    @property
+    def sku(self):
+        return self.product.sku if self.product else ''
+
     def save(self, *args, **kwargs):
         self.subtotal = self.unit_price * self.quantity
         super().save(*args, **kwargs)

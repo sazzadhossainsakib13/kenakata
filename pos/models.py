@@ -116,11 +116,22 @@ class POSSaleItem(models.Model):
     sku_snapshot = models.CharField(max_length=100, blank=True)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
-    line_total = models.DecimalField(max_digits=12, decimal_places=2)
     returned_quantity = models.PositiveIntegerField(default=0)
 
+    @property
+    def product_name(self):
+        return self.product_name_snapshot or (self.product.name if self.product else 'Item')
+
+    @property
+    def sku(self):
+        return self.sku_snapshot or (self.product.sku if self.product else '')
+
+    @property
+    def subtotal(self):
+        return self.line_total
+
     def __str__(self):
-        return f"{self.quantity}x {self.product_name_snapshot} ({self.sale.receipt_number})"
+        return f"{self.quantity}x {self.product_name} ({self.sale.receipt_number})"
 
     def save(self, *args, **kwargs):
         self.line_total = self.unit_price * self.quantity
