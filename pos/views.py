@@ -460,14 +460,55 @@ def complete_sale(request):
 
 @pos_staff_required
 def receipt_detail(request, receipt_number):
-    """Printable POS Receipt View."""
-    sale = get_object_or_404(POSSale.objects.select_related('cashier', 'customer'), receipt_number=receipt_number)
+    """Universal Printable Receipt View for both Offline POS Sales and Online Web Orders."""
+    from orders.models import Order
     settings_obj = StoreSettings.get_settings()
-    items = sale.items.select_related('product').all()
 
+    # 1. Try POS Sale
+    sale = POSSale.objects.filter(receipt_number=receipt_number).select_related('cashier', 'customer').first()
+    if sale:
+        items = sale.items.select_related('product').all()
+        context = {
+            'is_pos_sale': True,
+            'sale': sale,
+            'items': items,
+            'receipt_number': sale.receipt_number,
+            'created_at': sale.created_at,
+            'customer_name': sale.customer.name if sale.customer else 'Walk-in Customer',
+            'customer_mobile': sale.customer.mobile if sale.customer else '',
+            'cashier_name': sale.cashier.get_full_name() or sale.cashier.username,
+            'payment_method': sale.payment_method,
+            'subtotal': sale.subtotal,
+            'discount_amount': sale.discount_amount,
+            'shipping_cost': Decimal('0.00'),
+            'total': sale.total,
+            'cash_received': sale.cash_received,
+            'change_amount': sale.change_amount,
+            'settings': settings_obj,
+        }
+        return render(request, 'pos/receipt.html', context)
+
+    # 2. Try Online Order
+    order = get_object_or_404(Order.objects.select_related('user'), order_number=receipt_number)
+    items = order.items.select_related('product').all()
     context = {
-        'sale': sale,
+        'is_pos_sale': False,
+        'order': order,
         'items': items,
+        'receipt_number': order.order_number,
+        'created_at': order.created_at,
+        'customer_name': order.recipient_name,
+        'customer_mobile': order.mobile,
+        'customer_email': order.email,
+        'shipping_address': order.full_address,
+        'cashier_name': f"Online Web ({order.district})",
+        'payment_method': f"{order.payment_method} ({order.get_payment_status_display()})",
+        'subtotal': order.subtotal,
+        'discount_amount': order.discount_amount,
+        'shipping_cost': order.shipping_cost,
+        'total': order.total,
+        'cash_received': order.total,
+        'change_amount': Decimal('0.00'),
         'settings': settings_obj,
     }
     return render(request, 'pos/receipt.html', context)
