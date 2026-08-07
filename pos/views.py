@@ -566,7 +566,7 @@ def sales_history(request):
                 'subtotal': sale.subtotal,
                 'discount_amount': sale.discount_amount,
                 'total': sale.total,
-                'payment_info': f"{sale.payment_method} (Cash: ৳{sale.cash_received|floatformat:'0'})",
+                'payment_info': f"{sale.payment_method} (Cash: ৳{sale.cash_received:.0f})",
                 'status': sale.status,
                 'status_display': sale.get_status_display(),
                 'status_badge_class': 'bg-success' if sale.status == 'completed' else ('bg-warning text-dark' if sale.status == 'partially_returned' else ('bg-danger' if sale.status == 'returned' else 'bg-secondary')),
