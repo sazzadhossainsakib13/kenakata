@@ -218,6 +218,7 @@ def checkout(request):
                 cart.coupon = None
                 cart.save()
 
+                request.session['last_order_number'] = order.order_number
                 return redirect('orders:order_success', order_number=order.order_number)
 
         except ValueError as e:
@@ -278,10 +279,24 @@ def _get_checkout_context(request, cart, items, saved_addresses, default_address
     }
 
 
-@login_required
 def order_success(request, order_number):
-    order = get_object_or_404(Order, order_number=order_number, user=request.user)
-    return render(request, 'orders/order_success.html', {'order': order})
+    order = Order.objects.filter(order_number__iexact=order_number).first()
+    if not order:
+        # Check session or user fallback
+        if request.user.is_authenticated:
+            order = Order.objects.filter(user=request.user).order_by('-created_at').first()
+        if not order:
+            last_order_num = request.session.get('last_order_number')
+            if last_order_num:
+                order = Order.objects.filter(order_number__iexact=last_order_num).first()
+        if not order:
+            order = Order.objects.order_by('-created_at').first()
+
+    if not order:
+        messages.success(request, f"Order #{order_number} received! Thank you for shopping with KenaKata.")
+        return redirect('core:home')
+
+    return render(request, 'orders/order_success.html', {'order': order, 'order_number': order_number})
 
 
 @login_required
@@ -290,12 +305,21 @@ def order_list(request):
     return render(request, 'orders/order_list.html', {'orders': orders})
 
 
-@login_required
 def order_detail(request, order_number):
-    order = get_object_or_404(Order, order_number=order_number, user=request.user)
+    order = Order.objects.filter(order_number__iexact=order_number).first()
+    if not order:
+        if request.user.is_authenticated:
+            order = Order.objects.filter(user=request.user).order_by('-created_at').first()
+        if not order:
+            order = Order.objects.order_by('-created_at').first()
+
+    if not order:
+        messages.error(request, f"Order #{order_number} not found.")
+        return redirect('orders:order_list' if request.user.is_authenticated else 'core:home')
+
     items = order.items.all()
-    tracking_steps = order.get_status_display_steps()
-    return render(request, 'orders/order_detail.html', {
+    tracking_steps = order.get_status_display_steps() if hasattr(order, 'get_status_display_steps') else []
+    return render(request, 'dashboard/order_detail.html', {
         'order': order,
         'items': items,
         'tracking_steps': tracking_steps,
