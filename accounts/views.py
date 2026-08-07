@@ -70,17 +70,24 @@ def login_view(request):
         return redirect('dashboard:home')
 
     if request.method == 'POST':
-        email = request.POST.get('email', '').strip()
+        login_input = request.POST.get('email', '').strip()
         password = request.POST.get('password', '')
         next_url = request.POST.get('next', '') or request.GET.get('next', '')
 
-        user = authenticate(request, username=email, password=password)
+        # Support login with either username OR email (e.g. Gmail)
+        user = authenticate(request, username=login_input, password=password)
+        if not user:
+            # Check by email address
+            matching_user = User.objects.filter(email__iexact=login_input).first()
+            if matching_user:
+                user = authenticate(request, username=matching_user.username, password=password)
+
         if user:
             login(request, user)
             messages.success(request, f"Welcome back, {user.first_name or user.username}!")
             return redirect(next_url or 'dashboard:home')
         else:
-            messages.error(request, "Invalid email or password.")
+            messages.error(request, "Invalid email/username or password.")
             return render(request, 'accounts/login.html', {'form_data': request.POST, 'next': next_url})
 
     next_url = request.GET.get('next', '')
