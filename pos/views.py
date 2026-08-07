@@ -604,7 +604,7 @@ def sales_history(request):
                 'subtotal': order.subtotal,
                 'discount_amount': order.discount_amount,
                 'total': order.total,
-                'payment_info': f"{order.get_payment_method_display()} • {order.get_payment_status_display()}",
+                'payment_info': f"{order.payment_method} • {order.get_payment_status_display()}",
                 'status': order.status,
                 'status_display': order.get_status_display(),
                 'status_badge_class': 'bg-success' if order.status == 'delivered' else ('bg-primary' if order.status in ['confirmed', 'packed', 'handed_to_courier', 'out_for_delivery'] else ('bg-warning text-dark' if order.status == 'pending' else 'bg-secondary')),
