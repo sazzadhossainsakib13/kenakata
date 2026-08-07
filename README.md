@@ -1,6 +1,6 @@
 # KenaKata (কেনাকাটা) 🇧🇩🛍️
 
-> **Bangladesh's Premier E-Commerce Marketplace & Unified Retail Point-of-Sale (POS) System**
+> **Bangladesh's Premier E-Commerce Marketplace & Unified Retail Point-of-Sale (POS) Ecosystem**
 
 [![Render Deployment](https://img.shields.io/badge/Render-Live_Demo-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://kenakata-o6l6.onrender.com/)
 [![Django](https://img.shields.io/badge/Django-5.0+-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
@@ -11,7 +11,24 @@
 
 ---
 
-## 🌐 1. Live URLs & Access Portals
+## 🌟 1. Project Overview
+
+**KenaKata** (developed under **SazzCommerce**) is an enterprise-grade, omnichannel e-commerce marketplace and integrated Point-of-Sale (POS) retail store system specifically tailored for the Bangladeshi retail ecosystem.
+
+In traditional retail, businesses in Bangladesh struggle with disconnected operations—maintaining one inventory for physical in-store counters and another for online Facebook/website orders. **KenaKata solves this by unifying offline retail cash registers and online customer orders into a single, real-time relational SQL database.**
+
+### 🎯 Key Objectives & Solutions:
+1. **Unified Omnichannel Operations**: When a product is sold in a physical retail outlet via the barcode POS terminal, stock is automatically and instantly deducted from the public online marketplace, preventing overselling.
+2. **Tailored for Bangladesh**:
+   - **Local Currency & Formatting**: Native **BDT (৳)** currency handling across catalogs, carts, orders, and receipts.
+   - **Multi-Method Authentication**: Customers can sign up and log in using their **Username**, **Gmail/Email**, or **Bangladeshi Mobile Number (`01XXXXXXXXX`)**.
+   - **Division-Based Cash on Delivery (COD)**: Automated shipping rates (Inside Dhaka ৳60 vs Outside Dhaka ৳120 across all 8 administrative divisions).
+3. **Dual-Category Sales Ledger**: Financial reporting clearly separates revenue into **Offline POS Cash Register Sales** and **Online Web Store Orders** with itemized gross revenue, discounts, returns, and inventory audits.
+4. **Thermal Receipt & Invoice Engine**: Real-time printable thermal receipt generation (`/pos/receipt/<receipt_number>/`) formatted for 80mm POS receipt printers as well as online customer packing slips.
+
+---
+
+## 🌐 2. Live URLs & Access Matrix
 
 **Live Production URL**: [https://kenakata-o6l6.onrender.com/](https://kenakata-o6l6.onrender.com/)
 
@@ -21,13 +38,12 @@
 | :--- | :--- | :--- |
 | **Django Administration** | [`/admin/`](https://kenakata-o6l6.onrender.com/admin/) | Full database control over orders, products, inventory, users, and hero banners |
 | **POS Cashier Terminal** | [`/pos/terminal/`](https://kenakata-o6l6.onrender.com/pos/terminal/) | Fast in-store barcode scanning, stock validation, cashier tender, and thermal receipts |
-| **Sales History & Analytics** | [`/pos/sales-history/`](https://kenakata-o6l6.onrender.com/pos/sales-history/) | 2-Category Sales Breakdown (**Offline POS Sales** vs. **Online Web Orders**) with revenue metrics |
+| **Sales History & Analytics** | [`/pos/sales/`](https://kenakata-o6l6.onrender.com/pos/sales/) | 2-Category Sales Breakdown (**Offline POS Sales** vs. **Online Web Orders**) with revenue metrics |
 | **Inventory & Products** | [`/pos/products/`](https://kenakata-o6l6.onrender.com/pos/products/) | SKU & Barcode management, inventory ledger, pricing, and stock additions |
 | **Store Settings & Cash Drawer** | [`/pos/settings/`](https://kenakata-o6l6.onrender.com/pos/settings/) | Cash register opening/closing sessions, VAT tax rates, low stock alert thresholds |
 
 #### 🔑 Superuser Credentials:
-* **Username**: `admin`
-* **Email**: `admin@kenakata.com`
+* **Username / Email**: `admin` or `admin@kenakata.com`
 * **Password**: `admin1234`
 
 ---
@@ -53,32 +69,30 @@
 
 ---
 
-## 🌟 2. Platform Overview & System Architecture
-
-**KenaKata** is designed to solve the common disconnect between online e-commerce stores and physical retail shops in Bangladesh. By sharing a unified Django database, real-time inventory, and multi-channel order processing engine, physical in-store sales and online customer orders stay perfectly synchronized.
+## 🏗️ 3. Platform Architecture & Data Flow
 
 ```mermaid
 graph TD
-    A[Customer on Web/Mobile] -->|Browse & Filter| B(KenaKata Storefront)
+    A[Online Customer Web/Mobile] -->|Browse & Filter| B(KenaKata Storefront)
     B -->|Add to Cart & Apply Coupon| C(Shopping Cart)
     C -->|Select BD Division & COD| D(Online Checkout)
-    D -->|Order Placed| E[(Unified Database - PostgreSQL / SQLite)]
+    D -->|Order Placed & Stock Allocated| E[(Unified Relational Database)]
 
-    F[In-Store Retail Cashier] -->|Barcode Scan / Search| G(POS Terminal)
+    F[Retail In-Store Cashier] -->|Barcode Scan / Search| G(POS Terminal)
     G -->|Tender Cash / bKash / Card| H(Instant POS Sale & Receipt)
-    H -->|Deduct Stock & Record Ledger| E
+    H -->|Deduct Stock & Log Ledger| E
 
-    E -->|Real-Time Analytics| I[2-Category Sales Dashboard]
-    I -->|Category 1| J[Offline POS Retail Sales]
-    I -->|Category 2| K[Online Web Orders]
+    E -->|Real-Time Aggregations| I[Unified 2-Category Sales Dashboard]
+    I -->|Channel 1| J[Offline In-Store POS Sales]
+    I -->|Channel 2| K[Online E-Commerce Web Orders]
 ```
 
 ---
 
-## ✨ 3. Detailed Feature Breakdown
+## ✨ 4. Detailed Feature Breakdown
 
 ### 🛒 A. Customer Storefront & Commerce
-* **Hierarchical Category Engine**: Electronics (Smartphones, Laptops, Audio), Men's & Women's Fashion (Panjabi, Saree, Kurti), Groceries, Sports & Lifestyle.
+* **Hierarchical Category Engine**: Over 30 categories and subcategories (Electronics, Men's & Women's Fashion, Groceries, Sports & Lifestyle).
 * **Smart Image Resolution**: High-resolution Unsplash CDN product photography coupled with branded vector SVG placeholders (`/static/images/placeholder.svg`) ensuring zero broken images.
 * **Flexible Coupon Engine**: Supports percentage-based discounts and fixed-amount deductions with minimum spend thresholds and maximum discount caps.
 * **Bangladeshi Delivery Matrix**:
@@ -95,20 +109,20 @@ graph TD
 
 ---
 
-## 🛠️ 4. Tech Stack & Architectural Details
+## 🛠️ 5. Tech Stack & Architectural Details
 
 | Layer | Technologies Used |
 | :--- | :--- |
-| **Backend Core** | Python 3.10+, Django 5.0+ |
-| **Frontend Framework** | Vanilla HTML5 & CSS3 (Custom Glassmorphism Design System), Bootstrap 5.3 |
+| **Backend Framework** | Python 3.10+, Django 5.0+ |
+| **Frontend UI** | Vanilla HTML5 & CSS3 (Custom Glassmorphism Design System), Bootstrap 5.3 |
 | **Static & Media Asset Delivery** | WhiteNoise 6.6+ with Gzip / Brotli compression and cache headers |
-| **Database Support** | SQLite 3 (Default Local / Ephemeral) & PostgreSQL via `dj-database-url` |
+| **Database Support** | SQLite 3 (Default Local / Ephemeral) & PostgreSQL via `DATABASE_URL` (Production) |
 | **WSGI Server** | Gunicorn 21.2+ (Production Application Server) |
 | **Localization & Standards** | BDT Currency (৳), `Asia/Dhaka` Timezone (GMT+6), Bangladeshi Mobile Regex |
 
 ---
 
-## 📁 5. Directory & App Structure
+## 📁 6. Directory & App Structure
 
 ```text
 kenakata/
@@ -117,13 +131,13 @@ kenakata/
 ├── catalog/           # Category, Brand, Product, ProductSpecification, Banner & Seed scripts
 ├── core/              # Homepage view, global context processor, search & error handlers
 ├── dashboard/         # Customer account portal, recent orders, reviews & address management
-├── orders/            # Order & OrderItem models, COD checkout, status transition engine
+├── orders/            # Checkout processing, COD fulfillment, and order tracking
 ├── pos/               # Cashier terminal, 2-category sales history, inventory ledger, settings
 ├── reviews/           # Product reviews, star ratings, and verified purchaser flags
 ├── sazzcommerce/      # Main settings.py, WSGI auto-boot seeding, and URL configurations
 ├── static/            # CSS Design System (base.css), JS scripts, and SVG placeholders
 ├── templates/         # 40+ modular templates (includes, core, catalog, pos, dashboard, orders)
-├── wishlist/          # User wishlist model and AJAX toggle endpoints
+├── wishlist/          # Saved customer wishlist items
 ├── build.sh           # Cloud build script (makemigrations, migrate, collectstatic, seed_data)
 ├── render.yaml        # Render.com Infrastructure-as-Code Blueprint
 └── requirements.txt   # Core Python dependencies
@@ -131,7 +145,7 @@ kenakata/
 
 ---
 
-## 🔀 6. Complete API & Route Map
+## 🔀 7. Complete API & Route Map
 
 | URL Path | View / Module | HTTP Methods | Access Level | Description |
 | :--- | :--- | :---: | :---: | :--- |
@@ -142,18 +156,20 @@ kenakata/
 | `/cart/add/<id>/` | `cart.views.add_to_cart` | `POST` | Public | Add item to cart with quantity selection |
 | `/cart/apply-coupon/` | `cart.views.apply_coupon` | `POST` | Public | Validate and apply promo code |
 | `/checkout/` | `orders.views.checkout` | `GET`, `POST` | Customer | Address entry & Cash on Delivery placement |
+| `/checkout/order-confirmation/<order_number>/` | `orders.views.order_success` | `GET` | Customer / Public | Order confirmation and live tracking summary |
 | `/account/` | `dashboard.views.home` | `GET` | Customer | Customer order history and profile stats |
 | `/wishlist/` | `wishlist.views.wishlist_view`| `GET` | Customer | Saved wishlist bookmark collection |
 | `/auth/login/` | `accounts.views.login_view` | `GET`, `POST` | Public | Multi-identifier login (Username/Gmail/Mobile)|
 | `/auth/register/` | `accounts.views.register_view`| `GET`, `POST` | Public | Customer account registration |
 | `/pos/terminal/` | `pos.views.terminal` | `GET`, `POST` | Staff / Admin| Cashier terminal and receipt checkout |
-| `/pos/sales-history/`| `pos.views.sales_history` | `GET` | Staff / Admin| 2-Category Sales Breakdown (Offline vs. Online) |
+| `/pos/sales/` | `pos.views.sales_history` | `GET` | Staff / Admin| 2-Category Sales Breakdown (Offline vs. Online) |
+| `/pos/receipt/<receipt_number>/` | `pos.views.receipt_detail` | `GET` | Staff / Admin| Universal thermal printable receipt & invoice |
 | `/pos/products/` | `pos.views.products` | `GET`, `POST` | Staff / Admin| Stock manager and SKU barcode manager |
 | `/admin/` | `django.contrib.admin` | `GET`, `POST` | Superuser | Complete Django administrative back-office |
 
 ---
 
-## 🚀 7. Step-by-Step Local Setup
+## 🚀 8. Step-by-Step Local Setup
 
 ### Prerequisites
 * [Python 3.10+](https://www.python.org/downloads/)
@@ -202,7 +218,7 @@ kenakata/
 
 ---
 
-## ☁️ 8. Cloud Production Deployment (Render.com)
+## ☁️ 9. Cloud Production Deployment (Render.com)
 
 1. Fork or push this repository to GitHub.
 2. Sign in to [Render.com](https://render.com/) and create a **New Web Service**.
@@ -218,7 +234,7 @@ kenakata/
 
 ---
 
-## 🔒 9. Security & Architecture Best Practices
+## 🔒 10. Security & Architecture Best Practices
 
 * **CSRF Protection**: All form submissions (Cart, Checkout, Authentication, POS) require Django CSRF tokens.
 * **SQL Injection Prevention**: 100% parameterization through Django ORM with atomic transaction safety (`transaction.atomic`).
