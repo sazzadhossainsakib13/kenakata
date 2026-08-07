@@ -4,7 +4,8 @@ Usage: {% include 'includes/product_card.html' with product=product %}
 {% endcomment %}
 <div class="product-card h-100">
   <!-- Image -->
-    <a href="{{ product.get_absolute_url }}">
+  <div class="product-card-img">
+    <a href="{{ product.get_absolute_url }}" class="d-block w-100 h-100">
       <img src="{{ product.get_main_image_url }}" alt="{{ product.name }}" loading="lazy" onerror="this.src='/static/images/placeholder.svg'">
     </a>
     <!-- Badges -->
