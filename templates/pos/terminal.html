@@ -634,7 +634,14 @@ function recalculateTotals() {
   if (discountAmount > subtotal) discountAmount = subtotal;
 
   const total = subtotal - discountAmount;
-  const cashReceived = parseFloat(document.getElementById('cashReceived').value) || 0;
+  let cashReceived = parseFloat(document.getElementById('cashReceived').value);
+  if (isNaN(cashReceived) || cashReceived <= 0) {
+    cashReceived = total;
+    if (total > 0) {
+      document.getElementById('cashReceived').placeholder = Math.round(total).toString();
+    }
+  }
+
   const change = Math.max(0, cashReceived - total);
 
   document.getElementById('summarySubtotal').textContent = `৳${Math.round(subtotal).toLocaleString()}`;
@@ -643,7 +650,7 @@ function recalculateTotals() {
   document.getElementById('changeReturn').textContent = `৳${Math.round(change).toLocaleString()}`;
 
   const completeBtn = document.getElementById('completeSaleBtn');
-  if (posCart.length > 0 && cashReceived >= total && total > 0) {
+  if (posCart.length > 0 && total > 0) {
     completeBtn.disabled = false;
   } else {
     completeBtn.disabled = true;

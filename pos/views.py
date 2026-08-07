@@ -385,10 +385,14 @@ def complete_sale(request):
 
             total = subtotal - discount_amount
 
-            if cash_received < total:
-                raise ValueError(f"Cash received (৳{cash_received}) is less than total amount (৳{total}).")
+            payment_method = data.get('payment_method', 'CASH').upper()
+            if cash_received <= 0:
+                cash_received = total
 
-            change_amount = cash_received - total
+            if cash_received < total:
+                raise ValueError(f"Cash received (৳{cash_received:.0f}) is less than total amount (৳{total:.0f}).")
+
+            change_amount = max(Decimal('0.00'), cash_received - total)
 
             # Customer lookup
             pos_customer = None
@@ -409,7 +413,7 @@ def complete_sale(request):
                 total=total,
                 cash_received=cash_received,
                 change_amount=change_amount,
-                payment_method='CASH',
+                payment_method=payment_method if payment_method in ['CASH', 'BKASH', 'NAGAD', 'CARD'] else 'CASH',
                 payment_status='PAID',
                 status='completed',
                 notes=notes
@@ -455,7 +459,7 @@ def complete_sale(request):
     except ValueError as ve:
         return JsonResponse({'success': False, 'message': str(ve)})
     except Exception as e:
-        return JsonResponse({'success': False, 'message': 'An unexpected error occurred during sale completion.'})
+        return JsonResponse({'success': False, 'message': f'Error processing sale: {str(e)}'})
 
 
 @pos_staff_required
