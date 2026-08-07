@@ -130,7 +130,7 @@ def dashboard(request):
         sale__status__in=['completed', 'partially_returned']
     ).values('product_name_snapshot').annotate(
         total_qty=Sum('quantity'),
-        total_rev=Sum('line_total')
+        total_rev=Sum(F('unit_price') * F('quantity'))
     ).order_by('-total_qty')[:5]
 
     top_products = list(top_products_pos)
@@ -139,7 +139,7 @@ def dashboard(request):
             order__status='delivered'
         ).values('product_name').annotate(
             total_qty=Sum('quantity'),
-            total_rev=Sum('subtotal')
+            total_rev=Sum(F('unit_price') * F('quantity'))
         ).order_by('-total_qty')[:5]
         top_products = [{'product_name_snapshot': item['product_name'], 'total_qty': item['total_qty'], 'total_rev': item['total_rev']} for item in top_products_web]
 
@@ -591,7 +591,7 @@ def sales_history(request):
                     'sku': item.sku_snapshot,
                     'qty': item.quantity,
                     'price': item.unit_price,
-                    'subtotal': item.line_total,
+                    'subtotal': item.unit_price * item.quantity,
                 }
                 for item in sale.items.all()
             ]
@@ -924,7 +924,7 @@ def reports(request):
         'product__category__name'
     ).annotate(
         units_sold=Sum('quantity'),
-        revenue=Sum('line_total')
+        revenue=Sum(F('unit_price') * F('quantity'))
     ).order_by('-revenue')
 
     context = {
