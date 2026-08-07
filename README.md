@@ -1,125 +1,165 @@
 # KenaKata (কেনাকাটা) 🇧🇩🛍️
 
-> **Bangladesh's Premium E-Commerce Marketplace & Unified Point-of-Sale (POS) Retail Platform**
+> **Bangladesh's Premier E-Commerce Marketplace & Unified Retail Point-of-Sale (POS) System**
 
 [![Render Deployment](https://img.shields.io/badge/Render-Live_Demo-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://kenakata-o6l6.onrender.com/)
 [![Django](https://img.shields.io/badge/Django-5.0+-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
+[![PostgreSQL Ready](https://img.shields.io/badge/Database-PostgreSQL_|_SQLite-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
 ---
 
-## 🌐 Live URL & Access Portals
+## 🌐 1. Live URLs & Access Portals
 
 **Live Production URL**: [https://kenakata-o6l6.onrender.com/](https://kenakata-o6l6.onrender.com/)
 
----
+### 🛡️ Admin & Staff Portals (Back-Office & POS Terminal)
 
-### 🛡️ 1. Admin & Staff Access (Back-Office & POS)
-
-| Portal / Feature | Direct URL Path | Purpose / Description |
+| Portal / Feature | Direct URL Path | Description & Capabilities |
 | :--- | :--- | :--- |
-| **Django Admin Panel** | [`/admin/`](https://kenakata-o6l6.onrender.com/admin/) | Full database management, orders, products, users & banners |
-| **POS Cashier Terminal** | [`/pos/terminal/`](https://kenakata-o6l6.onrender.com/pos/terminal/) | Barcode checkout, instant stock deduction & thermal receipts |
-| **Sales History & Analytics** | [`/pos/sales-history/`](https://kenakata-o6l6.onrender.com/pos/sales-history/) | 2-Category Sales breakdown (**Offline POS Sales** vs. **Online Web Orders**) |
-| **Inventory & Products** | [`/pos/products/`](https://kenakata-o6l6.onrender.com/pos/products/) | SKU/Barcode management, inventory ledger & pricing |
-| **POS Settings & Cash Drawer** | [`/pos/settings/`](https://kenakata-o6l6.onrender.com/pos/settings/) | Cash drawer sessions, VAT/tax rates, and store profile |
+| **Django Administration** | [`/admin/`](https://kenakata-o6l6.onrender.com/admin/) | Full database control over orders, products, inventory, users, and hero banners |
+| **POS Cashier Terminal** | [`/pos/terminal/`](https://kenakata-o6l6.onrender.com/pos/terminal/) | Fast in-store barcode scanning, stock validation, cashier tender, and thermal receipts |
+| **Sales History & Analytics** | [`/pos/sales-history/`](https://kenakata-o6l6.onrender.com/pos/sales-history/) | 2-Category Sales Breakdown (**Offline POS Sales** vs. **Online Web Orders**) with revenue metrics |
+| **Inventory & Products** | [`/pos/products/`](https://kenakata-o6l6.onrender.com/pos/products/) | SKU & Barcode management, inventory ledger, pricing, and stock additions |
+| **Store Settings & Cash Drawer** | [`/pos/settings/`](https://kenakata-o6l6.onrender.com/pos/settings/) | Cash register opening/closing sessions, VAT tax rates, low stock alert thresholds |
 
-#### 🔑 Admin Credentials:
-* **Username / Email**: `admin` or `admin@kenakata.com`
+#### 🔑 Superuser Credentials:
+* **Username**: `admin`
+* **Email**: `admin@kenakata.com`
 * **Password**: `admin1234`
 
 ---
 
-### 🛍️ 2. Customer & User Access (Storefront & Orders)
+### 🛍️ Customer & Public Portals (Storefront & Checkout)
 
-| Portal / Feature | Direct URL Path | Purpose / Description |
+| Portal / Feature | Direct URL Path | Description & Capabilities |
 | :--- | :--- | :--- |
-| **Customer Storefront** | [`/`](https://kenakata-o6l6.onrender.com/) | Homepage, Hero Slider, Flash Sales & Featured Products |
-| **Product Catalog & Shop** | [`/shop/`](https://kenakata-o6l6.onrender.com/shop/) | Search, category filtering, brand selection & price sliders |
-| **Shopping Cart** | [`/cart/`](https://kenakata-o6l6.onrender.com/cart/) | Active items, quantity adjustments & Coupon Discounts |
-| **Cash on Delivery Checkout** | [`/checkout/`](https://kenakata-o6l6.onrender.com/checkout/) | Bangladeshi division/district selection & order placement |
-| **Customer Dashboard** | [`/account/`](https://kenakata-o6l6.onrender.com/account/) | Live order status, order history, addresses & profile |
-| **Saved Wishlist** | [`/wishlist/`](https://kenakata-o6l6.onrender.com/wishlist/) | Customer favorite saved items |
-| **Universal Login** | [`/auth/login/`](https://kenakata-o6l6.onrender.com/auth/login/) | Login via **Username**, **Gmail/Email**, or **Mobile Number** |
-| **Account Registration** | [`/auth/register/`](https://kenakata-o6l6.onrender.com/auth/register/) | Instant new customer registration with mobile verification |
+| **Marketplace Storefront** | [`/`](https://kenakata-o6l6.onrender.com/) | Homepage, Hero Slider, Flash Deals, Trending Products & Category Grid |
+| **Product Catalog & Search** | [`/shop/`](https://kenakata-o6l6.onrender.com/shop/) | Search query parser, price range sliders, multi-category & brand filters |
+| **Shopping Cart** | [`/cart/`](https://kenakata-o6l6.onrender.com/cart/) | Session-backed cart, quantity adjustments, and dynamic coupon discount engine |
+| **Cash on Delivery Checkout** | [`/checkout/`](https://kenakata-o6l6.onrender.com/checkout/) | 8 Bangladesh divisions selector, Dhaka vs. Outside Dhaka shipping calculation |
+| **Customer Dashboard** | [`/account/`](https://kenakata-o6l6.onrender.com/account/) | Order status tracking (`Pending`, `Processing`, `Delivered`), receipts & address book |
+| **Saved Wishlist** | [`/wishlist/`](https://kenakata-o6l6.onrender.com/wishlist/) | Customer favorite product bookmarks with one-click Add to Cart |
+| **Universal Login** | [`/auth/login/`](https://kenakata-o6l6.onrender.com/auth/login/) | Login seamlessly using **Username**, **Gmail/Email**, or **Mobile Number** |
+| **Account Registration** | [`/auth/register/`](https://kenakata-o6l6.onrender.com/auth/register/) | Instant new customer registration with Bangladesh mobile number validation |
 
 #### 🎟️ Active Demo Promo Coupons:
-* `EID2026` — **20% Off** on orders over ৳3,000
-* `BDDEAL` — **15% Off** on orders over ৳2,000
-* `HACKATHON10` — **10% Off** on orders over ৳500
+* `EID2026` — **20% Off** on orders over ৳3,000 (Max discount ৳2,000)
+* `BDDEAL` — **15% Off** on orders over ৳2,000 (Max discount ৳500)
+* `HACKATHON10` — **10% Off** on orders over ৳500 (Max discount ৳1,000)
 * `WELCOME100` — **৳100 Flat Discount** on orders over ৳1,000
 
 ---
 
-## 🌟 About The Project
+## 🌟 2. Platform Overview & System Architecture
 
-**KenaKata** (built under **SazzCommerce**) is an enterprise-ready, all-in-one e-commerce and retail POS ecosystem tailored specifically for Bangladesh. It seamlessly connects a modern customer-facing online storefront with an in-store physical POS terminal, providing unified inventory, analytics, and sales reporting across both online orders and offline retail cash registers.
+**KenaKata** is designed to solve the common disconnect between online e-commerce stores and physical retail shops in Bangladesh. By sharing a unified Django database, real-time inventory, and multi-channel order processing engine, physical in-store sales and online customer orders stay perfectly synchronized.
 
----
+```mermaid
+graph TD
+    A[Customer on Web/Mobile] -->|Browse & Filter| B(KenaKata Storefront)
+    B -->|Add to Cart & Apply Coupon| C(Shopping Cart)
+    C -->|Select BD Division & COD| D(Online Checkout)
+    D -->|Order Placed| E[(Unified Database - PostgreSQL / SQLite)]
 
-## ✨ Core Features & Capabilities
+    F[In-Store Retail Cashier] -->|Barcode Scan / Search| G(POS Terminal)
+    G -->|Tender Cash / bKash / Card| H(Instant POS Sale & Receipt)
+    H -->|Deduct Stock & Record Ledger| E
 
-### 🛍️ Online Customer Storefront
-- **Dynamic Catalog & Category Engine**: 30+ categories and subcategories (Electronics, Men's Fashion, Women's Fashion, Groceries, Sports, etc.).
-- **Smart Image Fallback**: Category-aware high-resolution CDN product imagery and vector SVG placeholders ensure zero broken images.
-- **Universal Multi-Method Login**: Customers can log in using their **Username**, **Gmail/Email**, or **Bangladeshi Mobile Number** (`01XXXXXXXXX`).
-- **Interactive Cart & Wishlist**: Persistent user sessions, item quantity adjustments, and dynamic coupon codes.
-- **Cash on Delivery (COD) Checkout**: Built-in Bangladesh division/district selection with automated delivery charges (Inside Dhaka vs. Outside Dhaka).
-- **Customer Dashboard**: Track live order status (`Pending`, `Processing`, `Delivered`, `Cancelled`), view itemized receipts, and leave product reviews.
-
-### 🏢 Integrated Point-of-Sale (POS) & Retail Back-Office
-- **Cashier Terminal Interface**: Fast barcode scanning, live stock deduction, quantity counters, and split payment methods (Cash, bKash, Nagad, Card).
-- **2-Category Sales History**: Unified dashboard clearly categorizing sales into **Offline POS Transactions** and **Online Web Orders** with full product breakdowns, revenue summaries, and cash drawer management.
-- **Inventory & Stock Management**: Low-stock alerts, SKU/barcode generation, and real-time inventory ledger tracking.
-- **Thermal & Digital Receipts**: Instant receipt print generation for in-store customers.
-
----
-
-## 🛠️ Technology Stack
-
-| Component | Technology |
-| :--- | :--- |
-| **Backend Framework** | Python 3.10+, Django 5.0+ |
-| **Frontend UI** | HTML5, Vanilla CSS3 (Custom Glassmorphism Design System), Bootstrap 5.3, Bootstrap Icons |
-| **Static & Media Serving** | WhiteNoise 6.6+ with high-performance production caching |
-| **Database** | SQLite 3 (Local Development) / PostgreSQL Ready via `DATABASE_URL` (Production) |
-| **WSGI Server** | Gunicorn 21.2+ |
-| **Localization** | BDT (৳) currency formatting, Bangladeshi timezone (`Asia/Dhaka`), 8 administrative divisions |
-
----
-
-## 📁 Project Architecture
-
-```text
-kenakata/
-├── accounts/          # User authentication, profiles, mobile validation, and addresses
-├── cart/              # Cart state management, session handling, and coupon system
-├── catalog/           # Products, categories, brands, specifications, banners & seed commands
-├── core/              # Homepage, global context processors, search, and error views
-├── dashboard/         # Customer order management & merchant staff dashboard
-├── orders/            # Checkout processing, COD fulfillment, and order tracking
-├── pos/               # Cashier terminal, sales history (Offline vs. Online), and receipts
-├── reviews/           # Verified buyer reviews, rating calculation, and feedback
-├── sazzcommerce/      # Django settings, WSGI auto-boot seeding, and URL routing
-├── static/            # Design system CSS (base.css), JS scripts, and SVG placeholders
-├── templates/         # Modular Django templates (includes, core, catalog, pos, dashboard)
-├── wishlist/          # Saved customer wishlist items
-├── build.sh           # Cloud build script (migrations, collectstatic, seed_data)
-├── render.yaml        # Render.com Infrastructure-as-Code blueprint
-└── requirements.txt   # Production dependencies
+    E -->|Real-Time Analytics| I[2-Category Sales Dashboard]
+    I -->|Category 1| J[Offline POS Retail Sales]
+    I -->|Category 2| K[Online Web Orders]
 ```
 
 ---
 
-## 🚀 Local Development Setup
+## ✨ 3. Detailed Feature Breakdown
+
+### 🛒 A. Customer Storefront & Commerce
+* **Hierarchical Category Engine**: Electronics (Smartphones, Laptops, Audio), Men's & Women's Fashion (Panjabi, Saree, Kurti), Groceries, Sports & Lifestyle.
+* **Smart Image Resolution**: High-resolution Unsplash CDN product photography coupled with branded vector SVG placeholders (`/static/images/placeholder.svg`) ensuring zero broken images.
+* **Flexible Coupon Engine**: Supports percentage-based discounts and fixed-amount deductions with minimum spend thresholds and maximum discount caps.
+* **Bangladeshi Delivery Matrix**:
+  * **Inside Dhaka**: ৳60 delivery charge (Estimated 1–2 business days).
+  * **Outside Dhaka**: ৳120 delivery charge (Estimated 3–5 business days across all 8 administrative divisions).
+* **Customer Account Management**: Full order timeline, order history, downloadable summaries, and product review submissions.
+
+### 🏢 B. Merchant Point-of-Sale (POS) Terminal
+* **High-Speed Checkout**: Search products by name, SKU, or barcode with keyboard shortcut bindings.
+* **Cashier Tender Flow**: Instant change calculation, discount overrides, and customer mobile attachment.
+* **Multi-Payment Support**: Accepts `CASH`, `BKASH`, `NAGAD`, and `CARD`.
+* **Inventory Movement Ledger**: Automatically logs inventory restocks, damaged stock write-offs, POS sales, and online order allocations.
+* **Split Sales History Reporting**: Real-time sales metrics split cleanly into **Offline In-Store POS Sales** and **Online Web Store Orders**.
+
+---
+
+## 🛠️ 4. Tech Stack & Architectural Details
+
+| Layer | Technologies Used |
+| :--- | :--- |
+| **Backend Core** | Python 3.10+, Django 5.0+ |
+| **Frontend Framework** | Vanilla HTML5 & CSS3 (Custom Glassmorphism Design System), Bootstrap 5.3 |
+| **Static & Media Asset Delivery** | WhiteNoise 6.6+ with Gzip / Brotli compression and cache headers |
+| **Database Support** | SQLite 3 (Default Local / Ephemeral) & PostgreSQL via `dj-database-url` |
+| **WSGI Server** | Gunicorn 21.2+ (Production Application Server) |
+| **Localization & Standards** | BDT Currency (৳), `Asia/Dhaka` Timezone (GMT+6), Bangladeshi Mobile Regex |
+
+---
+
+## 📁 5. Directory & App Structure
+
+```text
+kenakata/
+├── accounts/          # User authentication, UserProfile, and Bangladesh address model
+├── cart/              # Cart & CartItem models, session synchronization, and Coupon engine
+├── catalog/           # Category, Brand, Product, ProductSpecification, Banner & Seed scripts
+├── core/              # Homepage view, global context processor, search & error handlers
+├── dashboard/         # Customer account portal, recent orders, reviews & address management
+├── orders/            # Order & OrderItem models, COD checkout, status transition engine
+├── pos/               # Cashier terminal, 2-category sales history, inventory ledger, settings
+├── reviews/           # Product reviews, star ratings, and verified purchaser flags
+├── sazzcommerce/      # Main settings.py, WSGI auto-boot seeding, and URL configurations
+├── static/            # CSS Design System (base.css), JS scripts, and SVG placeholders
+├── templates/         # 40+ modular templates (includes, core, catalog, pos, dashboard, orders)
+├── wishlist/          # User wishlist model and AJAX toggle endpoints
+├── build.sh           # Cloud build script (makemigrations, migrate, collectstatic, seed_data)
+├── render.yaml        # Render.com Infrastructure-as-Code Blueprint
+└── requirements.txt   # Core Python dependencies
+```
+
+---
+
+## 🔀 6. Complete API & Route Map
+
+| URL Path | View / Module | HTTP Methods | Access Level | Description |
+| :--- | :--- | :---: | :---: | :--- |
+| `/` | `core.views.home` | `GET` | Public | Homepage, banners, and flash sale grid |
+| `/shop/` | `catalog.views.product_list` | `GET` | Public | Searchable and filterable product catalog |
+| `/shop/<slug>/` | `catalog.views.product_detail` | `GET` | Public | Product specifications, gallery, and reviews |
+| `/cart/` | `cart.views.cart_detail` | `GET` | Public | Active shopping cart overview |
+| `/cart/add/<id>/` | `cart.views.add_to_cart` | `POST` | Public | Add item to cart with quantity selection |
+| `/cart/apply-coupon/` | `cart.views.apply_coupon` | `POST` | Public | Validate and apply promo code |
+| `/checkout/` | `orders.views.checkout` | `GET`, `POST` | Customer | Address entry & Cash on Delivery placement |
+| `/account/` | `dashboard.views.home` | `GET` | Customer | Customer order history and profile stats |
+| `/wishlist/` | `wishlist.views.wishlist_view`| `GET` | Customer | Saved wishlist bookmark collection |
+| `/auth/login/` | `accounts.views.login_view` | `GET`, `POST` | Public | Multi-identifier login (Username/Gmail/Mobile)|
+| `/auth/register/` | `accounts.views.register_view`| `GET`, `POST` | Public | Customer account registration |
+| `/pos/terminal/` | `pos.views.terminal` | `GET`, `POST` | Staff / Admin| Cashier terminal and receipt checkout |
+| `/pos/sales-history/`| `pos.views.sales_history` | `GET` | Staff / Admin| 2-Category Sales Breakdown (Offline vs. Online) |
+| `/pos/products/` | `pos.views.products` | `GET`, `POST` | Staff / Admin| Stock manager and SKU barcode manager |
+| `/admin/` | `django.contrib.admin` | `GET`, `POST` | Superuser | Complete Django administrative back-office |
+
+---
+
+## 🚀 7. Step-by-Step Local Setup
 
 ### Prerequisites
-- [Python 3.10+](https://www.python.org/downloads/)
-- [Git](https://git-scm.com/)
+* [Python 3.10+](https://www.python.org/downloads/)
+* [Git](https://git-scm.com/)
 
-### Step-by-Step Installation
+### Installation
 
 1. **Clone the Repository**
    ```bash
@@ -127,7 +167,7 @@ kenakata/
    cd kenakata
    ```
 
-2. **Create & Activate Virtual Environment**
+2. **Create and Activate Virtual Environment**
    ```bash
    # Windows (PowerShell)
    python -m venv venv
@@ -143,46 +183,57 @@ kenakata/
    pip install -r requirements.txt
    ```
 
-4. **Run Migrations & Seed Demo Catalog**
+4. **Initialize Database & Seed Catalog**
    ```bash
    python manage.py makemigrations
    python manage.py migrate
    python manage.py seed_data
    ```
 
-5. **Start Development Server**
+5. **Start Local Development Server**
    ```bash
    python manage.py runserver
    ```
 
-6. **Open in Browser**
-   - Marketplace Storefront: `http://127.0.0.1:8000/`
-   - Admin Back-Office: `http://127.0.0.1:8000/admin/` (Login: `admin` / `admin1234`)
+6. **Access In Browser**
+   - Storefront: `http://127.0.0.1:8000/`
+   - Admin Panel: `http://127.0.0.1:8000/admin/` (`admin` / `admin1234`)
    - POS Terminal: `http://127.0.0.1:8000/pos/terminal/`
 
 ---
 
-## ☁️ Deployment Guide (Render.com)
+## ☁️ 8. Cloud Production Deployment (Render.com)
 
 1. Fork or push this repository to GitHub.
-2. Log in to [Render.com](https://render.com/) and click **New > Web Service**.
-3. Connect your `kenakata` GitHub repository.
-4. Configure the following settings:
+2. Sign in to [Render.com](https://render.com/) and create a **New Web Service**.
+3. Select your `kenakata` repository.
+4. Configure service parameters:
    - **Environment**: `Python 3`
+   - **Region**: `Singapore` (or nearest region)
+   - **Branch**: `main`
    - **Build Command**: `./build.sh`
    - **Start Command**: `gunicorn sazzcommerce.wsgi:application`
-5. (Optional) Add a PostgreSQL database and set the `DATABASE_URL` environment variable.
-6. Click **Deploy Web Service**.
+5. (Optional) Under **Environment Variables**, add `DATABASE_URL` pointing to your PostgreSQL instance.
+6. Click **Create Web Service**. Render will execute migrations, collect static assets, seed the demo catalog, and start Gunicorn automatically.
+
+---
+
+## 🔒 9. Security & Architecture Best Practices
+
+* **CSRF Protection**: All form submissions (Cart, Checkout, Authentication, POS) require Django CSRF tokens.
+* **SQL Injection Prevention**: 100% parameterization through Django ORM with atomic transaction safety (`transaction.atomic`).
+* **Multi-Format Password Hashing**: Passwords hashed securely using PBKDF2 with SHA-256.
+* **Production Static Serving**: Optimized static asset delivery through WhiteNoise with cache headers.
 
 ---
 
 ## 👤 Author & Maintainer
 
 **Sazzad Hossain Sakib**
-- GitHub: [@sazzadhossainsakib13](https://github.com/sazzadhossainsakib13)
+* GitHub: [@sazzadhossainsakib13](https://github.com/sazzadhossainsakib13)
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
