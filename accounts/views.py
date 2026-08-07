@@ -39,9 +39,7 @@ def register_view(request):
             errors.append("Password must be at least 8 characters.")
         if password != confirm_password:
             errors.append("Passwords do not match.")
-        if User.objects.filter(email=email).exists():
-            errors.append("An account with this email already exists.")
-        if User.objects.filter(username=email).exists():
+        if User.objects.filter(email__iexact=email).exists() or User.objects.filter(username__iexact=email).exists():
             errors.append("An account with this email already exists.")
 
         if errors:
@@ -57,7 +55,7 @@ def register_view(request):
             first_name=first_name,
             last_name=last_name,
         )
-        UserProfile.objects.create(user=user, mobile=mobile)
+        UserProfile.objects.get_or_create(user=user, defaults={'mobile': mobile})
         login(request, user)
         messages.success(request, f"Welcome to KenaKata, {first_name}! Your account has been created.")
         return redirect('dashboard:home')
@@ -74,20 +72,32 @@ def login_view(request):
         password = request.POST.get('password', '')
         next_url = request.POST.get('next', '') or request.GET.get('next', '')
 
-        # Support login with either username OR email (e.g. Gmail)
+        user = None
+        # 1. Try directly with username
         user = authenticate(request, username=login_input, password=password)
+
+        # 2. Try matching by email address (case-insensitive)
         if not user:
-            # Check by email address
-            matching_user = User.objects.filter(email__iexact=login_input).first()
-            if matching_user:
-                user = authenticate(request, username=matching_user.username, password=password)
+            matching_users = User.objects.filter(email__iexact=login_input)
+            for m_user in matching_users:
+                user = authenticate(request, username=m_user.username, password=password)
+                if user:
+                    break
+
+        # 3. Try matching by mobile phone number
+        if not user:
+            clean_phone = re.sub(r'[\s\-\(\)]', '', login_input)
+            if clean_phone:
+                profile = UserProfile.objects.filter(mobile__icontains=clean_phone[-10:]).first()
+                if profile and profile.user:
+                    user = authenticate(request, username=profile.user.username, password=password)
 
         if user:
             login(request, user)
             messages.success(request, f"Welcome back, {user.first_name or user.username}!")
             return redirect(next_url or 'dashboard:home')
         else:
-            messages.error(request, "Invalid email/username or password.")
+            messages.error(request, "Invalid username, email, or password. Please check and try again.")
             return render(request, 'accounts/login.html', {'form_data': request.POST, 'next': next_url})
 
     next_url = request.GET.get('next', '')

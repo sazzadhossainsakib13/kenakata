@@ -18,8 +18,8 @@
             {% csrf_token %}
             {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
             <div class="kk-form-group">
-              <label class="kk-label required">Email Address</label>
-              <input type="email" name="email" class="kk-input" placeholder="your@email.com"
+              <label class="kk-label required">Username, Email or Mobile</label>
+              <input type="text" name="email" class="kk-input" placeholder="admin, your@gmail.com, or 017XXXXXXXX"
                      value="{{ form_data.email|default:'' }}" required autofocus>
             </div>
             <div class="kk-form-group">
