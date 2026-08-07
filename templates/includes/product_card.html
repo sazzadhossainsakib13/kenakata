@@ -5,7 +5,7 @@ Usage: {% include 'includes/product_card.html' with product=product %}
 <div class="product-card h-100">
   <!-- Image -->
   <div class="product-card-img">
-    <a href="{{ product.get_absolute_url }}" class="d-block w-100 h-100">
+    <a href="{{ product.get_absolute_url }}" class="product-img-link">
       <img src="{{ product.get_main_image_url }}" alt="{{ product.name }}" loading="lazy" onerror="this.src='/static/images/placeholder.svg'">
     </a>
     <!-- Badges -->
@@ -22,7 +22,7 @@ Usage: {% include 'includes/product_card.html' with product=product %}
     </div>
     <!-- Wishlist Button -->
     {% if user.is_authenticated %}
-    <button class="product-wishlist-btn {% if product.id in wishlist_product_ids %}active{% endif %}"
+    <button type="button" class="product-wishlist-btn {% if product.id in wishlist_product_ids %}active{% endif %}"
             onclick="toggleWishlist({{ product.id }}, this)"
             title="Add to Wishlist">
       <i class="bi {% if product.id in wishlist_product_ids %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
