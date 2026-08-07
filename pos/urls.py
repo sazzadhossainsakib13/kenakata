@@ -12,6 +12,7 @@ urlpatterns = [
     path('complete-sale/', views.complete_sale, name='complete_sale'),
     path('receipt/<str:receipt_number>/', views.receipt_detail, name='receipt_detail'),
     path('sales/', views.sales_history, name='sales_history'),
+    path('sales-history/', views.sales_history, name='sales_history_alias'),
     path('sale/<str:receipt_number>/', views.sale_detail, name='sale_detail'),
     path('returns/', views.returns_list, name='returns_list'),
     path('process-return/', views.process_return, name='process_return'),

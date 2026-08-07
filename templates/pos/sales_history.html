@@ -270,17 +270,13 @@
 
           <!-- Action Buttons -->
           <td style="text-align:right;">
-            <div class="d-inline-flex gap-1">
-              <a href="{{ sale.detail_url }}" class="btn btn-sm btn-outline-light" style="font-size:11.5px; padding:4px 9px;" title="View Details">
+            <div class="d-inline-flex gap-1 align-items-center">
+              <a href="{{ sale.detail_url }}" class="btn btn-sm btn-outline-light" style="font-size:11.5px; padding:4px 9px;" title="View Full Transaction Breakdown">
                 <i class="bi bi-eye"></i> Details
               </a>
-              {% if sale.can_print_receipt %}
-              <a href="{{ sale.receipt_url }}" class="btn btn-sm btn-outline-success" style="font-size:11.5px; padding:4px 9px;" target="_blank" title="Print POS Receipt">
-                <i class="bi bi-printer"></i> Receipt
-              </a>
-              {% else %}
-              <a href="{{ sale.detail_url }}" class="btn btn-sm btn-outline-info" style="font-size:11.5px; padding:4px 9px;" title="Manage Delivery Order">
-                <i class="bi bi-box-seam"></i> Order
+              {% if sale.receipt_url %}
+              <a href="{{ sale.receipt_url }}" class="btn btn-sm {% if sale.channel == 'offline' %}btn-success text-white{% else %}btn-outline-info{% endif %}" style="font-size:11.5px; padding:4px 10px; font-weight:700;" target="_blank" title="Print {{ sale.receipt_label }}">
+                <i class="bi bi-printer-fill me-1"></i> {{ sale.receipt_label|default:"Receipt" }}
               </a>
               {% endif %}
             </div>

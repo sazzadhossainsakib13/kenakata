@@ -573,6 +573,8 @@ def sales_history(request):
                 'detail_url': f'/pos/sale/{sale.receipt_number}/',
                 'receipt_url': f'/pos/receipt/{sale.receipt_number}/',
                 'can_print_receipt': True,
+                'receipt_label': 'POS Receipt',
+                'receipt_modal_type': 'offline',
             })
 
     # 2. Build Online Web Orders
@@ -610,7 +612,9 @@ def sales_history(request):
                 'status_badge_class': 'bg-success' if order.status == 'delivered' else ('bg-primary' if order.status in ['confirmed', 'packed', 'handed_to_courier', 'out_for_delivery'] else ('bg-warning text-dark' if order.status == 'pending' else 'bg-secondary')),
                 'detail_url': f'/pos/online-orders/?q={order.order_number}',
                 'receipt_url': f'/checkout/order-confirmation/{order.order_number}/',
-                'can_print_receipt': False,
+                'can_print_receipt': True,
+                'receipt_label': 'Order Invoice',
+                'receipt_modal_type': 'online',
             })
 
     # Sort combined sales chronologically
