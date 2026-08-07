@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}My Reviews — KenaKata{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="row g-4">
+    <div class="col-lg-3">{% include 'dashboard/sidebar.html' %}</div>
+    <div class="col-lg-9">
+      <div class="kk-card">
+        <div class="kk-card-header">
+          <span class="fw-700 h5 mb-0"><i class="bi bi-star me-2"></i>My Reviews</span>
+        </div>
+        <div class="kk-card-body p-0">
+          {% if reviews %}
+          {% for review in reviews %}
+          <div class="p-4 border-bottom">
+            <div class="d-flex align-items-start justify-content-between gap-3">
+              <div class="d-flex gap-3">
+                <a href="{{ review.product.get_absolute_url }}">
+                  {% if review.product.image %}
+                  <img src="{{ review.product.image.url }}" style="width:56px;height:56px;object-fit:cover;border-radius:10px;">
+                  {% endif %}
+                </a>
+                <div>
+                  <a href="{{ review.product.get_absolute_url }}" class="fw-700" style="color:var(--kk-gray-800);text-decoration:none;font-size:14px;">{{ review.product.name }}</a>
+                  <div class="d-flex align-items-center gap-2 my-1">
+                    <div class="stars" style="font-size:14px;">
+                      {% for i in "12345" %}
+                      {% if forloop.counter <= review.rating %}<i class="bi bi-star-fill" style="color:#fbbf24;"></i>
+                      {% else %}<i class="bi bi-star" style="color:#d1d5db;"></i>{% endif %}
+                      {% endfor %}
+                    </div>
+                    {% if review.is_verified_purchase %}<span class="badge" style="background:#dcfce7;color:#166534;font-size:10px;">✓ Verified</span>{% endif %}
+                  </div>
+                  {% if review.title %}<div class="fw-600 mb-1" style="font-size:13px;">{{ review.title }}</div>{% endif %}
+                  <p class="text-muted mb-0" style="font-size:13px;">{{ review.comment }}</p>
+                  <div class="small text-muted mt-1">{{ review.created_at|date:"d M Y" }}</div>
+                </div>
+              </div>
+              <form method="POST" action="/account/reviews/delete/{{ review.pk }}/" onsubmit="return confirm('Delete this review?')">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm" style="color:var(--kk-danger);background:none;border:none;"><i class="bi bi-trash3"></i></button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="empty-state">
+            <div class="empty-state-icon"><i class="bi bi-star"></i></div>
+            <h2 class="empty-state-title">No reviews yet</h2>
+            <p class="empty-state-desc">Review products you've purchased to help other buyers</p>
+            <a href="/account/orders/" class="btn-kk-primary">View Orders</a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

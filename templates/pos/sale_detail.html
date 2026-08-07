@@ -1,0 +1,186 @@
+{% extends 'pos/base_pos.html' %}
+{% load static %}
+
+{% block title %}Sale {{ sale.receipt_number }} — POS Details{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h3 fw-800 text-white mb-1"><i class="bi bi-receipt me-2 text-success"></i>Receipt #{{ sale.receipt_number }}</h1>
+    <p class="text-muted mb-0 small">Transaction Date: {{ sale.created_at|date:"d M Y, g:i A" }}</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="/pos/receipt/{{ sale.receipt_number }}/" class="btn-pos-primary" target="_blank"><i class="bi bi-printer me-1"></i> Print Receipt</a>
+    <a href="/pos/sales/" class="btn-pos-outline"><i class="bi bi-arrow-left me-1"></i> Back to History</a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Left: Items & Summary -->
+  <div class="col-lg-8">
+    <div class="pos-card mb-4">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h2 class="h6 fw-700 text-white mb-0">Purchased Items ({{ items.count }})</h2>
+        <span class="badge {% if sale.status == 'completed' %}bg-success{% elif sale.status == 'partially_returned' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+          {{ sale.get_status_display }}
+        </span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-dark-custom align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th class="text-center">Unit Price</th>
+              <th class="text-center">Qty Purchased</th>
+              <th class="text-center">Returned</th>
+              <th class="text-end">Line Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items %}
+            <tr>
+              <td>
+                <div class="fw-600 text-white">{{ item.product_name_snapshot }}</div>
+                <div class="text-muted" style="font-size:11px;">SKU: {{ item.sku_snapshot }}</div>
+              </td>
+              <td class="text-center">৳{{ item.unit_price|floatformat:"0" }}</td>
+              <td class="text-center fw-700">{{ item.quantity }}</td>
+              <td class="text-center text-warning fw-700">{{ item.returned_quantity }}</td>
+              <td class="text-end fw-700 text-success">৳{{ item.line_total|floatformat:"0" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Returns History if any -->
+    {% if returns %}
+    <div class="pos-card mb-4">
+      <h2 class="h6 fw-700 text-white mb-3"><i class="bi bi-arrow-counterclockwise text-warning me-2"></i>Returns Processed for this Sale</h2>
+      {% for ret in returns %}
+      <div class="p-3 mb-2 rounded-3" style="background:rgba(255,255,255,0.03);border:1px solid var(--pos-border);">
+        <div class="d-flex justify-content-between mb-2">
+          <span class="fw-700 text-warning">{{ ret.return_number }}</span>
+          <span class="small text-muted">{{ ret.created_at|date:"d M Y, g:i A" }}</span>
+        </div>
+        <div class="small text-muted mb-2">Processed by: <strong>{{ ret.staff.username }}</strong> | Reason: <em>{{ ret.reason }}</em></div>
+        <div class="small fw-700 text-white">Refund Total: <span class="text-danger">৳{{ ret.total_refund|floatformat:"0" }}</span></div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Process Partial/Full Return Modal Launcher -->
+    {% if sale.status != 'voided' and sale.status != 'returned' %}
+    <div class="pos-card">
+      <h2 class="h6 fw-700 text-white mb-2"><i class="bi bi-arrow-counterclockwise me-2 text-warning"></i>Process Return / Refund</h2>
+      <p class="text-muted small mb-3">Select items and quantity to refund and return stock to inventory.</p>
+      
+      <form method="POST" action="/pos/process-return/" id="returnForm">
+        {% csrf_token %}
+        <input type="hidden" name="receipt_number" value="{{ sale.receipt_number }}">
+        <input type="hidden" name="items_json" id="returnItemsJson">
+
+        <div class="table-responsive mb-3">
+          <table class="table table-dark-custom align-middle mb-0" style="font-size:13px;">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Purchased</th>
+                <th>Returnable</th>
+                <th>Return Qty</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in items %}
+              {% if item.remaining_returnable_quantity > 0 %}
+              <tr>
+                <td>{{ item.product_name_snapshot }}</td>
+                <td>{{ item.quantity }}</td>
+                <td class="fw-700 text-warning">{{ item.remaining_returnable_quantity }}</td>
+                <td style="width:120px;">
+                  <input type="number" class="form-control form-control-sm bg-dark text-white border-secondary return-qty-input"
+                         data-item-id="{{ item.id }}" max="{{ item.remaining_returnable_quantity }}" min="0" value="0">
+                </td>
+              </tr>
+              {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small text-muted">Reason for Return *</label>
+          <input type="text" name="reason" class="form-control bg-dark text-white border-secondary" placeholder="e.g. Defective item, Customer requested return..." required>
+        </div>
+
+        <button type="submit" class="btn btn-warning fw-600" onclick="prepareReturnPayload(event)"><i class="bi bi-arrow-counterclockwise me-1"></i> Submit Return & Restock</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Right: Sale Summary & Actions -->
+  <div class="col-lg-4">
+    <div class="pos-card mb-4">
+      <h2 class="h6 fw-700 text-white mb-3">Financial Breakdown</h2>
+      <div class="d-flex justify-content-between text-muted mb-2"><span>Subtotal:</span><span class="text-white fw-600">৳{{ sale.subtotal|floatformat:"0" }}</span></div>
+      <div class="d-flex justify-content-between text-danger mb-2"><span>Discount:</span><span class="fw-600">−৳{{ sale.discount_amount|floatformat:"0" }}</span></div>
+      <hr style="border-color:var(--pos-border);">
+      <div class="d-flex justify-content-between fw-800 text-white h5 mb-3"><span>Total:</span><span class="text-success">৳{{ sale.total|floatformat:"0" }}</span></div>
+      <div class="d-flex justify-content-between text-muted small mb-1"><span>Cash Received:</span><span>৳{{ sale.cash_received|floatformat:"0" }}</span></div>
+      <div class="d-flex justify-content-between text-muted small mb-1"><span>Change Returned:</span><span>৳{{ sale.change_amount|floatformat:"0" }}</span></div>
+      <div class="d-flex justify-content-between text-muted small mb-1"><span>Payment Method:</span><span class="text-success fw-600">{{ sale.payment_method }} ({{ sale.payment_status }})</span></div>
+    </div>
+
+    <!-- Staff & Customer Info -->
+    <div class="pos-card mb-4">
+      <h2 class="h6 fw-700 text-white mb-3">Audit Details</h2>
+      <div class="small text-muted mb-2">Cashier: <strong class="text-white">{{ sale.cashier.get_full_name|default:sale.cashier.username }}</strong></div>
+      <div class="small text-muted mb-2">Customer: <strong class="text-white">{{ sale.customer.name|default:"Walk-in Customer" }}</strong></div>
+      {% if sale.customer %}
+      <div class="small text-muted mb-2">Mobile: {{ sale.customer.mobile }}</div>
+      {% endif %}
+      {% if sale.notes %}<div class="small text-muted mt-2">Notes: {{ sale.notes }}</div>{% endif %}
+    </div>
+
+    <!-- Super Admin Void Control -->
+    {% if request.user.is_superuser and sale.status != 'voided' %}
+    <div class="pos-card border-danger">
+      <h2 class="h6 fw-700 text-danger mb-2"><i class="bi bi-slash-circle me-1"></i>Void Transaction</h2>
+      <p class="small text-muted mb-3">Voiding cancels this sale and restores inventory. Requires admin authorization.</p>
+      <form method="POST" action="/pos/void-sale/{{ sale.receipt_number }}/" onsubmit="return confirm('Are you sure you want to void this sale?')">
+        {% csrf_token %}
+        <input type="text" name="reason" class="form-control form-control-sm bg-dark text-white border-secondary mb-2" placeholder="Reason for voiding..." required>
+        <button type="submit" class="btn btn-outline-danger btn-sm w-100"><i class="bi bi-trash"></i> Void Sale</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+function prepareReturnPayload(e) {
+  const items = [];
+  document.querySelectorAll('.return-qty-input').forEach(input => {
+    const qty = parseInt(input.value) || 0;
+    if (qty > 0) {
+      items.push({
+        sale_item_id: input.dataset.itemId,
+        quantity: qty
+      });
+    }
+  });
+
+  if (items.length === 0) {
+    e.preventDefault();
+    alert('Please select at least one item quantity to return.');
+    return;
+  }
+
+  document.getElementById('returnItemsJson').value = JSON.stringify(items);
+}
+</script>
+{% endblock %}

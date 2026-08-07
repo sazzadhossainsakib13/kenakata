@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shop All Products — KenaKata{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Mobile Filter Toggle Button -->
+  <div class="d-lg-none mb-3">
+    <button class="btn-kk-outline w-100 justify-content-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileFilterOffcanvas">
+      <i class="bi bi-funnel-fill me-2"></i> Filter Products
+    </button>
+  </div>
+
+  <div class="row g-4">
+    <!-- Desktop Filter Sidebar -->
+    <div class="col-lg-3 d-none d-lg-block">
+      <div class="filter-sidebar">
+        {% include 'catalog/includes/filter_form.html' with form_id="filterForm" %}
+      </div>
+    </div>
+
+    <!-- Products Section -->
+    <div class="col-lg-9">
+      <!-- Sort & Count Bar -->
+      <div class="d-flex align-items-center justify-content-between mb-3 p-3 bg-white rounded-3 border">
+        <span class="small text-muted fw-500">
+          Showing <strong style="color:var(--kk-primary);">{{ total_count }}</strong> products
+          {% if selected_category %}in <strong>{{ selected_category.name }}</strong>{% endif %}
+        </span>
+        <div class="d-flex align-items-center gap-2">
+          <label class="small text-muted d-none d-sm-inline">Sort by:</label>
+          <select class="kk-select" style="width:auto;font-size:13px;" onchange="window.location.href=updateQueryParam('sort',this.value)">
+            <option value="popular" {% if sort == 'popular' %}selected{% endif %}>Most Popular</option>
+            <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest First</option>
+            <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+            <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+            <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Highest Rated</option>
+          </select>
+        </div>
+      </div>
+
+      {% if page_obj.object_list %}
+      <div class="products-grid">
+        {% for product in page_obj %}
+        {% include 'includes/product_card.html' with product=product %}
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if page_obj.has_other_pages %}
+      <nav class="mt-4 d-flex justify-content-center">
+        <ul class="pagination kk-pagination gap-1">
+          {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&sort={{ sort }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">
+              <i class="bi bi-chevron-left"></i>
+            </a>
+          </li>
+          {% endif %}
+          {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+          <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+          <li class="page-item"><a class="page-link" href="?page={{ num }}&sort={{ sort }}">{{ num }}</a></li>
+          {% endif %}
+          {% endfor %}
+          {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}&sort={{ sort }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">
+              <i class="bi bi-chevron-right"></i>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon"><i class="bi bi-box-seam"></i></div>
+        <h2 class="empty-state-title">No products found</h2>
+        <p class="empty-state-desc">Try adjusting your filter criteria</p>
+        <a href="/shop/" class="btn-kk-primary"><i class="bi bi-arrow-counterclockwise me-1"></i> Clear Filters</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Offcanvas Filter -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="mobileFilterOffcanvas" aria-labelledby="mobileFilterOffcanvasLabel">
+  <div class="offcanvas-header border-bottom">
+    <h5 class="offcanvas-title fw-700" id="mobileFilterOffcanvasLabel"><i class="bi bi-funnel me-2"></i>Filter Products</h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    {% include 'catalog/includes/filter_form.html' with form_id="mobileFilterForm" %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateQueryParam(key, value) {
+  const url = new URL(window.location);
+  url.searchParams.set(key, value);
+  return url.toString();
+}
+</script>
+{% endblock %}

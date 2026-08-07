@@ -1,0 +1,126 @@
+{% extends 'pos/base_pos.html' %}
+{% load static %}
+
+{% block title %}{% if is_edit %}Edit Product{% else %}Upload New Product{% endif %} — {{ settings.store_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h3 fw-800 text-white mb-1">
+      {% if is_edit %}<i class="bi bi-pencil-square text-warning me-2"></i>Edit Product: {{ product.name }}{% else %}<i class="bi bi-cloud-upload-fill text-success me-2"></i>Upload New Product{% endif %}
+    </h1>
+    <p class="text-muted mb-0 small">Product will automatically sync across the Online Website Storefront & POS Cashier Terminal</p>
+  </div>
+  <a href="/pos/products/" class="btn-pos-outline"><i class="bi bi-arrow-left me-1"></i> Back to Catalog</a>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-9">
+    <div class="pos-card">
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <h2 class="h6 fw-700 text-white mb-3 border-bottom border-secondary pb-2"><i class="bi bi-info-circle me-2 text-primary"></i>Basic Product Information</h2>
+        <div class="row g-3 mb-4">
+          <div class="col-md-8">
+            <label class="form-label small text-muted">Product Title / Name *</label>
+            <input type="text" name="name" class="form-control bg-dark text-white border-secondary" placeholder="e.g. Samsung Galaxy A55 5G" value="{{ product.name|default:'' }}" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small text-muted">Barcode (leave empty to auto-generate)</label>
+            <input type="text" name="barcode" class="form-control bg-dark text-white border-secondary" placeholder="894XXXXXXXXX" value="{{ product.barcode|default:'' }}">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label small text-muted">Category *</label>
+            <select name="category" class="form-select bg-dark text-white border-secondary" required>
+              <option value="">Select Category</option>
+              {% for cat in categories %}
+              <option value="{{ cat.id }}" {% if product.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label small text-muted">Brand (optional)</label>
+            <select name="brand" class="form-select bg-dark text-white border-secondary">
+              <option value="">No Brand / Select Brand</option>
+              {% for b in brands %}
+              <option value="{{ b.id }}" {% if product.brand_id == b.id %}selected{% endif %}>{{ b.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <h2 class="h6 fw-700 text-white mb-3 border-bottom border-secondary pb-2"><i class="bi bi-currency-exchange me-2 text-success"></i>Pricing & Inventory</h2>
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <label class="form-label small text-muted">Regular Price (৳) *</label>
+            <input type="number" name="regular_price" class="form-control bg-dark text-white border-secondary fw-700" placeholder="1500" value="{{ product.regular_price|default:'' }}" step="0.01" min="0" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small text-muted">Sale / Discount Price (৳ optional)</label>
+            <input type="number" name="discount_price" class="form-control bg-dark text-white border-secondary" placeholder="1200" value="{{ product.discount_price|default:'' }}" step="0.01" min="0">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small text-muted">Initial Stock Quantity *</label>
+            <input type="number" name="stock" class="form-control bg-dark text-white border-secondary fw-700 text-warning" placeholder="10" value="{{ product.stock|default:'10' }}" min="0" required>
+          </div>
+        </div>
+
+        <h2 class="h6 fw-700 text-white mb-3 border-bottom border-secondary pb-2"><i class="bi bi-file-text me-2 text-info"></i>Descriptions & Media</h2>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label small text-muted">Short Description</label>
+            <textarea name="short_description" class="form-control bg-dark text-white border-secondary" rows="3" placeholder="Brief 1-2 sentence highlights...">{{ product.short_description|default:'' }}</textarea>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small text-muted">Full Description</label>
+            <textarea name="description" class="form-control bg-dark text-white border-secondary" rows="3" placeholder="Full specs & details...">{{ product.description|default:'' }}</textarea>
+          </div>
+          <div class="col-12">
+            <label class="form-label small text-muted">Product Image</label>
+            <input type="file" name="image" class="form-control bg-dark text-white border-secondary" accept="image/*">
+            {% if product.image %}
+            <div class="mt-2 small text-muted">Current Image: <a href="{{ product.image.url }}" target="_blank" class="text-info">{{ product.image.name }}</a></div>
+            {% endif %}
+          </div>
+        </div>
+
+        <h2 class="h6 fw-700 text-white mb-3 border-bottom border-secondary pb-2"><i class="bi bi-toggle-on me-2 text-warning"></i>Status & Visibility Flags</h2>
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-md-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="active" value="1" id="flagActive" {% if not is_edit or product.active %}checked{% endif %}>
+              <label class="form-check-label text-white small" for="flagActive">Active (Visible)</label>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="featured" value="1" id="flagFeatured" {% if product.featured %}checked{% endif %}>
+              <label class="form-check-label text-white small" for="flagFeatured">Featured</label>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="flash_sale" value="1" id="flagFlash" {% if product.flash_sale %}checked{% endif %}>
+              <label class="form-check-label text-white small" for="flagFlash">Flash Sale</label>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="trending" value="1" id="flagTrending" {% if product.trending %}checked{% endif %}>
+              <label class="form-check-label text-white small" for="flagTrending">Trending</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn-pos-primary"><i class="bi bi-check2-circle"></i> {% if is_edit %}Save Changes{% else %}Upload & Publish Product{% endif %}</button>
+          <a href="/pos/products/" class="btn-pos-outline">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

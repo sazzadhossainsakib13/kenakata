@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Shopping Cart — KenaKata{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="h4 fw-800 mb-4" style="color:var(--kk-gray-900);">
+    <i class="bi bi-cart3 me-2" style="color:var(--kk-primary);"></i>Shopping Cart
+    {% if cart_count %}<span class="badge ms-2" style="background:var(--kk-primary);font-size:14px;">{{ cart_count }}</span>{% endif %}
+  </h1>
+
+  {% if items %}
+  <div class="row g-4">
+    <!-- Cart Items -->
+    <div class="col-lg-8">
+      <div class="kk-card">
+        <div class="kk-card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-borderless cart-table mb-0">
+              <thead style="background:var(--kk-gray-50);border-bottom:1px solid var(--kk-gray-100);">
+                <tr>
+                  <th class="py-3 px-4 fw-700" style="font-size:13px;color:var(--kk-gray-600);">Product</th>
+                  <th class="py-3 px-4 fw-700 text-center" style="font-size:13px;color:var(--kk-gray-600);">Price</th>
+                  <th class="py-3 px-4 fw-700 text-center" style="font-size:13px;color:var(--kk-gray-600);">Qty</th>
+                  <th class="py-3 px-4 fw-700 text-end" style="font-size:13px;color:var(--kk-gray-600);">Subtotal</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in items %}
+                <tr class="cart-item border-bottom" data-item-id="{{ item.id }}">
+                  <td class="py-3 px-4">
+                    <div class="d-flex align-items-center gap-3">
+                      <a href="{{ item.product.get_absolute_url }}">
+                        {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width:72px;height:72px;object-fit:cover;border-radius:10px;">
+                        {% else %}
+                        <div style="width:72px;height:72px;background:var(--kk-gray-100);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--kk-gray-300);"><i class="bi bi-image"></i></div>
+                        {% endif %}
+                      </a>
+                      <div>
+                        <a href="{{ item.product.get_absolute_url }}" class="fw-600 d-block mb-1" style="font-size:14px;color:var(--kk-gray-800);text-decoration:none;">{{ item.product.name }}</a>
+                        <div class="small text-muted">{{ item.product.category.name }}</div>
+                        {% if item.product.is_on_sale %}
+                        <span class="badge" style="background:#fee2e2;color:#dc2626;font-size:10px;">{{ item.product.discount_percentage }}% OFF</span>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4 text-center">
+                    <span class="fw-700 bdt" style="color:var(--kk-primary);">৳{{ item.product.selling_price|floatformat:"0" }}</span>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div class="d-flex justify-content-center">
+                      <div class="qty-control">
+                        <button type="button" class="qty-btn qty-minus" onclick="changeQty({{ item.id }}, -1)">−</button>
+                        <input type="number" class="qty-input cart-qty-input" value="{{ item.quantity }}"
+                               min="1" max="{{ item.product.stock }}" data-item-id="{{ item.id }}"
+                               onchange="updateCartItem({{ item.id }}, this.value, this)">
+                        <button type="button" class="qty-btn qty-plus" onclick="changeQty({{ item.id }}, 1)">+</button>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4 text-end">
+                    <span class="fw-700 bdt item-subtotal" style="font-size:16px;">৳{{ item.get_total_price|floatformat:"0" }}</span>
+                  </td>
+                  <td class="py-3 px-4">
+                    <button onclick="removeCartItem({{ item.id }})" class="btn btn-sm" style="color:var(--kk-danger);background:none;border:none;font-size:18px;" title="Remove">
+                      <i class="bi bi-trash3"></i>
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="kk-card-header border-top" style="border-bottom:none;">
+          <a href="/shop/" class="btn-kk-outline" style="padding:9px 20px;font-size:13px;">
+            <i class="bi bi-arrow-left"></i> Continue Shopping
+          </a>
+        </div>
+      </div>
+
+      <!-- Coupon -->
+      <div class="kk-card mt-3">
+        <div class="kk-card-header">
+          <span class="fw-700"><i class="bi bi-tag me-2"></i>Coupon Code</span>
+        </div>
+        <div class="kk-card-body">
+          {% if cart.coupon %}
+          <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background:#dcfce7;border:1px solid #86efac;">
+            <div>
+              <span class="fw-700" style="color:#166534;">✓ Coupon Applied: {{ cart.coupon.code }}</span>
+              <div class="small text-muted">You save ৳{{ coupon_discount|floatformat:"0" }}</div>
+            </div>
+            <form method="POST" action="/cart/remove-coupon/">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm" style="color:#dc2626;background:none;border:none;font-weight:600;">Remove</button>
+            </form>
+          </div>
+          {% else %}
+          <form method="POST" action="/cart/apply-coupon/" class="d-flex gap-2">
+            {% csrf_token %}
+            <input type="text" name="coupon_code" class="kk-input" placeholder="Enter coupon code (e.g. HACKATHON10)" style="flex:1;">
+            <button type="submit" class="btn-kk-primary" style="padding:11px 24px;white-space:nowrap;">Apply</button>
+          </form>
+          <div class="small text-muted mt-2">Try: <code>HACKATHON10</code>, <code>WELCOME100</code>, <code>BDDEAL</code></div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="col-lg-4">
+      <div class="order-summary-card">
+        <div class="kk-card-header">
+          <span class="fw-700">Order Summary</span>
+        </div>
+        <div class="kk-card-body">
+          <div class="summary-row">
+            <span>Subtotal ({{ cart_count }} items)</span>
+            <span class="fw-600 bdt" id="cart-subtotal">৳{{ cart.get_subtotal|floatformat:"0" }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Delivery</span>
+            <span class="fw-600 bdt">৳{{ delivery_charge|floatformat:"0" }}</span>
+          </div>
+          {% if coupon_discount > 0 %}
+          <div class="summary-row" style="color:var(--kk-success);">
+            <span><i class="bi bi-tag-fill me-1"></i>Coupon Discount</span>
+            <span class="fw-700">−৳{{ coupon_discount|floatformat:"0" }}</span>
+          </div>
+          {% endif %}
+          <div class="summary-row total">
+            <span>Total</span>
+            <span class="bdt" style="color:var(--kk-primary);">৳{{ cart.get_total|floatformat:"0" }}</span>
+          </div>
+
+          <!-- COD Notice -->
+          <div class="cod-badge mt-4">
+            <div class="cod-icon"><i class="bi bi-cash-coin"></i></div>
+            <div>
+              <div class="cod-title">Cash on Delivery</div>
+              <div class="cod-desc">Pay in cash when your order arrives</div>
+            </div>
+          </div>
+
+          <a href="/checkout/" class="btn-kk-primary w-100 mt-4" style="justify-content:center;padding:14px;font-size:15px;">
+            <i class="bi bi-lock-fill"></i> Proceed to Checkout
+          </a>
+          <div class="text-center mt-2 small text-muted">
+            <i class="bi bi-shield-check me-1"></i> Secure Checkout
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon"><i class="bi bi-cart-x"></i></div>
+    <h2 class="empty-state-title">Your cart is empty</h2>
+    <p class="empty-state-desc">Looks like you haven't added anything yet. Start shopping!</p>
+    <a href="/shop/" class="btn-kk-primary"><i class="bi bi-bag"></i> Browse Products</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function changeQty(itemId, delta) {
+  const input = document.querySelector(`.cart-qty-input[data-item-id="${itemId}"]`);
+  if (!input) return;
+  let val = parseInt(input.value) + delta;
+  if (val < 1) val = 1;
+  const max = parseInt(input.max) || 99;
+  if (val > max) val = max;
+  input.value = val;
+  updateCartItem(itemId, val, input);
+}
+</script>
+{% endblock %}

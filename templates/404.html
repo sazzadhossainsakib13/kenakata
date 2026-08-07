@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Page Not Found (404) — KenaKata{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-6 text-center py-5">
+      <div class="mb-4" style="font-size: 120px; font-weight: 900; line-height: 1; background: linear-gradient(135deg, var(--kk-primary), var(--kk-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        404
+      </div>
+      <div class="kk-logo-icon mx-auto mb-3" style="width: 64px; height: 64px; font-size: 30px; border-radius: 18px;">
+        <i class="bi bi-bag-heart-fill"></i>
+      </div>
+      <h1 class="h3 fw-800 mb-2" style="color: var(--kk-gray-900);">Looks like this page went shopping!</h1>
+      <p class="text-muted mb-4" style="font-size: 15px;">The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
+      <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <a href="/" class="btn-kk-primary" style="padding: 12px 28px;">
+          <i class="bi bi-house-fill me-1"></i> Back to Home
+        </a>
+        <a href="/shop/" class="btn-kk-outline" style="padding: 11px 26px;">
+          <i class="bi bi-grid-fill me-1"></i> Browse Products
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

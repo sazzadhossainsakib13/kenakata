@@ -1,0 +1,413 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}KenaKata | Shop Smarter, Live Better — Delivered Across Bangladesh{% endblock %}
+
+{% block content %}
+
+<!-- ============ HERO SECTION ============ -->
+<section class="py-3 bg-white">
+  <div class="container">
+    <div class="row g-3">
+      <div class="col-lg-8">
+        <!-- Hero Carousel -->
+        <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+          <div class="carousel-inner rounded-4 overflow-hidden" style="min-height:320px;">
+            {% if hero_banners %}
+              {% for banner in hero_banners %}
+              <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                <div class="hero-slide" style="background: linear-gradient(135deg, {{ banner.bg_color }} 0%, {{ banner.bg_color|default:'#1a6b3c' }}cc 100%); min-height:320px;">
+                  {% if banner.image %}
+                  <img src="{{ banner.image.url }}" class="position-absolute w-100 h-100" style="object-fit:cover;opacity:0.3;" alt="{{ banner.title }}">
+                  {% endif %}
+                  <div class="hero-slide-content position-relative z-2">
+                    <span class="hero-badge">🔥 Special Offer</span>
+                    <h1 class="hero-title">{{ banner.title }}</h1>
+                    <p class="hero-subtitle">{{ banner.subtitle }}</p>
+                    <a href="{{ banner.cta_url }}" class="hero-cta">
+                      {{ banner.cta_text }} <i class="bi bi-arrow-right"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            {% else %}
+              <!-- Default Hero -->
+              <div class="carousel-item active">
+                <div class="hero-slide" style="background:linear-gradient(135deg,#1a6b3c 0%,#0f3460 100%);min-height:320px;">
+                  <div class="hero-slide-content">
+                    <span class="hero-badge">🔥 Mega Electronics Sale</span>
+                    <h1 class="hero-title">Up to 40% Off<br>on Electronics</h1>
+                    <p class="hero-subtitle">Smartphones, Laptops, Headphones & More</p>
+                    <a href="/shop/?category=electronics" class="hero-cta">Shop Now <i class="bi bi-arrow-right"></i></a>
+                  </div>
+                </div>
+              </div>
+              <div class="carousel-item">
+                <div class="hero-slide" style="background:linear-gradient(135deg,#7c3aed 0%,#db2777 100%);min-height:320px;">
+                  <div class="hero-slide-content">
+                    <span class="hero-badge">✨ Eid Collection 2026</span>
+                    <h1 class="hero-title">Fashion Festival<br>Starts Now</h1>
+                    <p class="hero-subtitle">Premium Panjabi, Saree, Kurti & More</p>
+                    <a href="/shop/?category=mens-fashion" class="hero-cta">Explore Collection <i class="bi bi-arrow-right"></i></a>
+                  </div>
+                </div>
+              </div>
+              <div class="carousel-item">
+                <div class="hero-slide" style="background:linear-gradient(135deg,#d97706 0%,#dc2626 100%);min-height:320px;">
+                  <div class="hero-slide-content">
+                    <span class="hero-badge">💰 Friday Mega Deals</span>
+                    <h1 class="hero-title">Weekend Savings<br>Up to ৳5,000 Off</h1>
+                    <p class="hero-subtitle">Special discounts every Friday — Don't miss out!</p>
+                    <a href="/shop/?on_sale=1" class="hero-cta">View Deals <i class="bi bi-arrow-right"></i></a>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+          </button>
+          <div class="carousel-indicators">
+            {% if hero_banners %}{% for b in hero_banners %}<button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active"{% endif %}></button>{% endfor %}
+            {% else %}<button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button><button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button><button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>{% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Side Promos -->
+      <div class="col-lg-4">
+        <div class="d-flex flex-column gap-3 h-100">
+          <div class="promo-banner" style="background:linear-gradient(135deg,#0f3460,#533483);flex:1;">
+            <div class="promo-banner-title">Ramadan Essentials</div>
+            <div class="promo-banner-subtitle">Everything your family needs</div>
+            <a href="/shop/" class="promo-banner-cta">Shop Now</a>
+          </div>
+          <div class="promo-banner" style="background:linear-gradient(135deg,#b91c1c,#d97706);flex:1;">
+            <div class="promo-banner-title">Smartphone Deals</div>
+            <div class="promo-banner-subtitle">Latest models at best prices</div>
+            <a href="/search/?q=smartphone" class="promo-banner-cta">Explore</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRUST SECTION ============ -->
+<section class="py-3">
+  <div class="container">
+    <div class="trust-section">
+      <div class="row g-0">
+        <div class="col-6 col-md-3">
+          <div class="trust-item">
+            <div class="trust-icon"><i class="bi bi-truck"></i></div>
+            <div>
+              <div class="trust-title">Nationwide Delivery</div>
+              <div class="trust-desc">Delivering across all 8 divisions of Bangladesh</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="trust-item">
+            <div class="trust-icon"><i class="bi bi-cash-coin"></i></div>
+            <div>
+              <div class="trust-title">Cash on Delivery</div>
+              <div class="trust-desc">Pay when your order arrives at your door</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="trust-item">
+            <div class="trust-icon"><i class="bi bi-arrow-repeat"></i></div>
+            <div>
+              <div class="trust-title">Easy Returns</div>
+              <div class="trust-desc">Hassle-free customer-friendly return experience</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="trust-item">
+            <div class="trust-icon"><i class="bi bi-shield-check"></i></div>
+            <div>
+              <div class="trust-title">Quality Checked</div>
+              <div class="trust-desc">Every product verified before delivery</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SHOP BY CATEGORY ============ -->
+{% if categories %}
+<section class="py-4 page-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="title-icon green"><i class="bi bi-grid-3x3-gap-fill"></i></span>
+        Shop by Category
+      </h2>
+      <a href="/shop/" class="section-view-all">All Categories <i class="bi bi-arrow-right"></i></a>
+    </div>
+    <div class="category-grid">
+      {% for category in categories %}
+      <a href="{{ category.get_absolute_url }}" class="category-card">
+        <div class="category-icon">
+          <i class="bi {{ category.icon|default:'bi-tag' }}"></i>
+        </div>
+        <div class="category-name">{{ category.name }}</div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ============ FLASH SALE ============ -->
+{% if flash_sale_products %}
+<section class="py-2 page-section">
+  <div class="container">
+    <div class="flash-sale-section">
+      <div class="flash-header">
+        <div class="flash-title">
+          <span class="flash-icon">⚡</span>
+          <div>
+            <h2>Flash Sale</h2>
+            <p>Hurry! Limited time offers</p>
+          </div>
+        </div>
+        <div class="countdown-timer" id="flash-countdown">
+          <div class="countdown-block">
+            <span class="countdown-num" id="countdown-hours">06</span>
+            <span class="countdown-label">Hours</span>
+          </div>
+          <span class="countdown-sep">:</span>
+          <div class="countdown-block">
+            <span class="countdown-num" id="countdown-minutes">00</span>
+            <span class="countdown-label">Mins</span>
+          </div>
+          <span class="countdown-sep">:</span>
+          <div class="countdown-block">
+            <span class="countdown-num" id="countdown-seconds">00</span>
+            <span class="countdown-label">Secs</span>
+          </div>
+        </div>
+        <a href="/shop/?flash_sale=1" class="btn btn-outline-warning btn-sm rounded-pill fw-bold">View All</a>
+      </div>
+      <div class="row g-3">
+        {% for product in flash_sale_products|slice:":6" %}
+        <div class="col-6 col-md-4 col-lg-2">
+          {% include 'includes/product_card.html' with product=product %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ============ FEATURED PRODUCTS ============ -->
+{% if featured_products %}
+<section class="py-4 page-section fade-in-up">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="title-icon"><i class="bi bi-star-fill"></i></span>
+        Featured Products
+      </h2>
+      <a href="/shop/?sort=popular" class="section-view-all">View All <i class="bi bi-arrow-right"></i></a>
+    </div>
+    <div class="products-grid-4">
+      {% for product in featured_products %}
+      {% include 'includes/product_card.html' with product=product %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ============ PROMOTIONAL BANNERS ============ -->
+<section class="py-3 page-section">
+  <div class="container">
+    <div class="row g-3">
+      <div class="col-md-4">
+        <a href="/shop/" class="promo-banner" style="background:linear-gradient(135deg,#1a6b3c,#0f3460);min-height:180px;">
+          <div class="promo-banner-title">🎉 Eid Shopping Festival</div>
+          <div class="promo-banner-subtitle">Celebrate in style</div>
+          <span class="promo-banner-cta">Shop Now</span>
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a href="/shop/" class="promo-banner" style="background:linear-gradient(135deg,#7c3aed,#1a6b3c);min-height:180px;">
+          <div class="promo-banner-title">🌸 Pohela Boishakh</div>
+          <div class="promo-banner-subtitle">Celebrate Bangla tradition</div>
+          <span class="promo-banner-cta">Explore</span>
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a href="/shop/?on_sale=1" class="promo-banner" style="background:linear-gradient(135deg,#dc2626,#d97706);min-height:180px;">
+          <div class="promo-banner-title">🔥 Friday Mega Deals</div>
+          <div class="promo-banner-subtitle">Special discounts every Friday</div>
+          <span class="promo-banner-cta">View Deals</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRENDING NOW ============ -->
+{% if trending_products %}
+<section class="py-4 page-section fade-in-up">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="title-icon"><i class="bi bi-graph-up-arrow"></i></span>
+        Trending Now
+      </h2>
+      <a href="/shop/?sort=popular" class="section-view-all">View All <i class="bi bi-arrow-right"></i></a>
+    </div>
+    <div class="products-grid-4">
+      {% for product in trending_products %}
+      {% include 'includes/product_card.html' with product=product %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ============ NEW ARRIVALS ============ -->
+{% if new_arrivals %}
+<section class="py-4 page-section fade-in-up">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="title-icon" style="background:linear-gradient(135deg,#7c3aed,#5b21b6);"><i class="bi bi-stars"></i></span>
+        New Arrivals
+      </h2>
+      <a href="/shop/?sort=newest" class="section-view-all">View All <i class="bi bi-arrow-right"></i></a>
+    </div>
+    <div class="products-grid-4">
+      {% for product in new_arrivals %}
+      {% include 'includes/product_card.html' with product=product %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ============ BEST SELLERS ============ -->
+{% if best_sellers %}
+<section class="py-4 page-section fade-in-up">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="title-icon"><i class="bi bi-fire"></i></span>
+        Best Sellers
+      </h2>
+      <a href="/shop/?sort=popular" class="section-view-all">View All <i class="bi bi-arrow-right"></i></a>
+    </div>
+    <div class="products-grid-4">
+      {% for product in best_sellers %}
+      {% include 'includes/product_card.html' with product=product %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ============ BUDGET DEALS ============ -->
+{% if budget_deals %}
+<section class="py-4 page-section fade-in-up">
+  <div class="container">
+    <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border-radius:20px;padding:28px;border:1px solid #fde68a;">
+      <div class="section-header">
+        <h2 class="section-title" style="color:#92400e;">
+          <span class="title-icon" style="background:linear-gradient(135deg,#d97706,#b45309);"><i class="bi bi-piggy-bank-fill"></i></span>
+          Budget Deals — Under ৳999
+        </h2>
+        <a href="/shop/?max_price=999&on_sale=1" class="section-view-all" style="color:#92400e;border-color:#fde68a;">View All <i class="bi bi-arrow-right"></i></a>
+      </div>
+      <div class="products-grid-4">
+        {% for product in budget_deals %}
+        {% include 'includes/product_card.html' with product=product %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ============ TOP RATED ============ -->
+{% if top_rated %}
+<section class="py-4 page-section fade-in-up">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="title-icon green"><i class="bi bi-award-fill"></i></span>
+        Top Rated Products
+      </h2>
+      <a href="/shop/?sort=rating" class="section-view-all">View All <i class="bi bi-arrow-right"></i></a>
+    </div>
+    <div class="products-grid-4">
+      {% for product in top_rated %}
+      {% include 'includes/product_card.html' with product=product %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ============ RECENTLY VIEWED ============ -->
+{% if recently_viewed %}
+<section class="py-4 page-section fade-in-up">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="title-icon" style="background:linear-gradient(135deg,#64748b,#334155);"><i class="bi bi-clock-history"></i></span>
+        Recently Viewed
+      </h2>
+    </div>
+    <div class="products-grid-4">
+      {% for rv in recently_viewed %}
+      {% include 'includes/product_card.html' with product=rv.product %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ============ BOTTOM CTA ============ -->
+<section class="py-5 page-section">
+  <div class="container">
+    <div style="background:linear-gradient(135deg,#1a6b3c 0%,#0f3460 100%);border-radius:24px;padding:56px;text-align:center;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:rgba(255,255,255,0.05);border-radius:50%;"></div>
+      <div style="position:absolute;bottom:-40px;left:-40px;width:160px;height:160px;background:rgba(255,255,255,0.05);border-radius:50%;"></div>
+      <h2 style="font-size:32px;font-weight:800;color:white;margin-bottom:12px;">Everything You Need, Delivered Across Bangladesh</h2>
+      <p style="color:rgba(255,255,255,0.7);font-size:16px;margin-bottom:28px;">Great Products. Great Prices. Cash on Delivery.</p>
+      <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <a href="/shop/" class="btn-kk-accent" style="padding:14px 32px;font-size:15px;">
+          <i class="bi bi-bag-fill"></i> Start Shopping
+        </a>
+        <a href="/auth/register/" class="btn-kk-outline" style="color:white;border-color:rgba(255,255,255,0.4);padding:14px 32px;">
+          <i class="bi bi-person-plus"></i> Create Account
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Flash sale countdown
+{% if flash_sale_end %}
+initCountdown("{{ flash_sale_end|date:'c' }}");
+{% endif %}
+</script>
+{% endblock %}

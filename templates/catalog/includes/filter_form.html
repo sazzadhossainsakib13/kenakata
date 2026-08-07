@@ -1,0 +1,95 @@
+<form method="GET" action="/shop/" id="{{ form_id }}">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <span class="fw-700" style="font-size:15px;color:var(--kk-gray-900);">Filters</span>
+    <a href="/shop/" class="small text-muted" style="font-size:12px;">Clear All</a>
+  </div>
+
+  <!-- Category Filter -->
+  <div class="filter-group">
+    <div class="filter-title"><i class="bi bi-grid-3x3-gap"></i> Category</div>
+    {% for cat in categories %}
+    <div class="form-check mb-1">
+      <input class="form-check-input" type="radio" name="category" value="{{ cat.slug }}"
+             id="{{ form_id }}_cat_{{ cat.slug }}" {% if selected_category.slug == cat.slug %}checked{% endif %}
+             onchange="document.getElementById('{{ form_id }}').submit()">
+      <label class="form-check-label small" for="{{ form_id }}_cat_{{ cat.slug }}" style="color:var(--kk-gray-700);">
+        {{ cat.name }}
+      </label>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Price Range -->
+  <div class="filter-group">
+    <div class="filter-title"><i class="bi bi-currency-exchange"></i> Price Range (৳)</div>
+    <div class="form-check mb-1">
+      <input class="form-check-input" type="radio" name="max_price" value="1000" id="{{ form_id }}_price1"
+             {% if request.GET.max_price == '1000' %}checked{% endif %} onchange="this.form.submit()">
+      <label class="form-check-label small" for="{{ form_id }}_price1">Under ৳1,000</label>
+    </div>
+    <div class="form-check mb-1">
+      <input class="form-check-input" type="radio" name="max_price" value="5000" id="{{ form_id }}_price2"
+             {% if request.GET.max_price == '5000' %}checked{% endif %} onchange="this.form.submit()">
+      <label class="form-check-label small" for="{{ form_id }}_price2">৳1,000 – ৳5,000</label>
+    </div>
+    <div class="form-check mb-1">
+      <input class="form-check-input" type="radio" name="max_price" value="20000" id="{{ form_id }}_price3"
+             {% if request.GET.max_price == '20000' %}checked{% endif %} onchange="this.form.submit()">
+      <label class="form-check-label small" for="{{ form_id }}_price3">৳5,000 – ৳20,000</label>
+    </div>
+    <div class="form-check mb-1">
+      <input class="form-check-input" type="radio" name="max_price" value="50000" id="{{ form_id }}_price4"
+             {% if request.GET.max_price == '50000' %}checked{% endif %} onchange="this.form.submit()">
+      <label class="form-check-label small" for="{{ form_id }}_price4">৳20,000+</label>
+    </div>
+  </div>
+
+  <!-- Rating Filter -->
+  <div class="filter-group">
+    <div class="filter-title"><i class="bi bi-star-fill"></i> Rating</div>
+    <div class="form-check mb-1">
+      <input class="form-check-input" type="radio" name="rating" value="4" id="{{ form_id }}_rating4"
+             {% if request.GET.rating == '4' %}checked{% endif %} onchange="this.form.submit()">
+      <label class="form-check-label small" for="{{ form_id }}_rating4">⭐⭐⭐⭐ & above</label>
+    </div>
+    <div class="form-check mb-1">
+      <input class="form-check-input" type="radio" name="rating" value="3" id="{{ form_id }}_rating3"
+             {% if request.GET.rating == '3' %}checked{% endif %} onchange="this.form.submit()">
+      <label class="form-check-label small" for="{{ form_id }}_rating3">⭐⭐⭐ & above</label>
+    </div>
+  </div>
+
+  <!-- Other Filters -->
+  <div class="filter-group">
+    <div class="filter-title"><i class="bi bi-funnel"></i> Other</div>
+    <div class="form-check mb-1">
+      <input class="form-check-input" type="checkbox" name="on_sale" value="1" id="{{ form_id }}_on_sale"
+             {% if request.GET.on_sale %}checked{% endif %} onchange="this.form.submit()">
+      <label class="form-check-label small" for="{{ form_id }}_on_sale">On Sale</label>
+    </div>
+    <div class="form-check mb-1">
+      <input class="form-check-input" type="checkbox" name="in_stock" value="1" id="{{ form_id }}_in_stock"
+             {% if request.GET.in_stock %}checked{% endif %} onchange="this.form.submit()">
+      <label class="form-check-label small" for="{{ form_id }}_in_stock">In Stock Only</label>
+    </div>
+  </div>
+
+  <!-- Brand Filter -->
+  {% if brands %}
+  <div class="filter-group">
+    <div class="filter-title"><i class="bi bi-tags"></i> Brand</div>
+    {% for brand in brands %}
+    <div class="form-check mb-1">
+      <input class="form-check-input" type="radio" name="brand" value="{{ brand.slug }}"
+             id="{{ form_id }}_brand_{{ brand.slug }}" {% if selected_brand.slug == brand.slug %}checked{% endif %}
+             onchange="this.form.submit()">
+      <label class="form-check-label small" for="{{ form_id }}_brand_{{ brand.slug }}">{{ brand.name }}</label>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <button type="submit" class="btn-kk-primary w-100 mt-2" style="justify-content:center;padding:10px;">
+    <i class="bi bi-funnel"></i> Apply Filters
+  </button>
+</form>

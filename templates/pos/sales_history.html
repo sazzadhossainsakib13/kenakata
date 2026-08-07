@@ -1,0 +1,107 @@
+{% extends 'pos/base_pos.html' %}
+{% load static %}
+
+{% block title %}POS Sales History — {{ settings.store_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h3 fw-800 text-white mb-1"><i class="bi bi-receipt-cutoff me-2 text-success"></i>POS Sales History</h1>
+    <p class="text-muted mb-0 small">Total Sales: <strong>৳{{ total_sales_amount|floatformat:"0" }}</strong> across {{ total_count }} transactions</p>
+  </div>
+  <a href="/pos/terminal/" class="btn-pos-primary"><i class="bi bi-plus-circle me-1"></i> New POS Sale</a>
+</div>
+
+<!-- FILTER BAR -->
+<div class="pos-card mb-4">
+  <form method="GET" class="row g-2 align-items-center">
+    <div class="col-md-3">
+      <input type="text" name="q" class="form-control bg-dark text-white border-secondary" placeholder="Search Receipt #, customer, mobile..." value="{{ request.GET.q|default:'' }}">
+    </div>
+    <div class="col-md-2">
+      <select name="status" class="form-select bg-dark text-white border-secondary">
+        <option value="">All Statuses</option>
+        <option value="completed" {% if request.GET.status == 'completed' %}selected{% endif %}>Completed</option>
+        <option value="partially_returned" {% if request.GET.status == 'partially_returned' %}selected{% endif %}>Partially Returned</option>
+        <option value="returned" {% if request.GET.status == 'returned' %}selected{% endif %}>Returned</option>
+        <option value="voided" {% if request.GET.status == 'voided' %}selected{% endif %}>Voided</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <select name="cashier_id" class="form-select bg-dark text-white border-secondary">
+        <option value="">All Cashiers</option>
+        {% for c in cashiers %}
+        <option value="{{ c.id }}" {% if request.GET.cashier_id == c.id|stringformat:"i" %}selected{% endif %}>{{ c.username }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <input type="date" name="date_from" class="form-control bg-dark text-white border-secondary" value="{{ request.GET.date_from|default:'' }}">
+    </div>
+    <div class="col-md-2">
+      <input type="date" name="date_to" class="form-control bg-dark text-white border-secondary" value="{{ request.GET.date_to|default:'' }}">
+    </div>
+    <div class="col-md-1">
+      <button type="submit" class="btn btn-success w-100"><i class="bi bi-funnel"></i></button>
+    </div>
+  </form>
+</div>
+
+<!-- TABLE -->
+<div class="pos-card">
+  <div class="table-responsive">
+    <table class="table table-dark-custom align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Receipt #</th>
+          <th>Date / Time</th>
+          <th>Cashier</th>
+          <th>Customer</th>
+          <th>Items</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sale in page_obj %}
+        <tr>
+          <td class="fw-700 text-success">
+            <a href="/pos/sale/{{ sale.receipt_number }}/" class="text-decoration-none text-success">{{ sale.receipt_number }}</a>
+          </td>
+          <td class="small text-muted">{{ sale.created_at|date:"d M Y, g:i A" }}</td>
+          <td class="small">{{ sale.cashier.get_full_name|default:sale.cashier.username }}</td>
+          <td class="small">{{ sale.customer.name|default:"Walk-in Customer" }}</td>
+          <td class="small">{{ sale.items.count }} items</td>
+          <td class="fw-800 text-white">৳{{ sale.total|floatformat:"0" }}</td>
+          <td>
+            <span class="badge {% if sale.status == 'completed' %}bg-success{% elif sale.status == 'partially_returned' %}bg-warning text-dark{% elif sale.status == 'returned' %}bg-danger{% else %}bg-secondary{% endif %}">
+              {{ sale.get_status_display }}
+            </span>
+          </td>
+          <td>
+            <div class="d-flex gap-1">
+              <a href="/pos/sale/{{ sale.receipt_number }}/" class="btn btn-sm btn-outline-light" style="font-size:11px;padding:3px 8px;"><i class="bi bi-eye"></i> Details</a>
+              <a href="/pos/receipt/{{ sale.receipt_number }}/" class="btn btn-sm btn-outline-success" style="font-size:11px;padding:3px 8px;" target="_blank"><i class="bi bi-printer"></i> Receipt</a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="text-center py-5 text-muted">No POS transactions match criteria.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if page_obj.has_other_pages %}
+  <nav class="mt-4 d-flex justify-content-center">
+    <ul class="pagination pagination-sm gap-1">
+      {% if page_obj.has_previous %}<li class="page-item"><a class="page-link bg-dark text-white border-secondary" href="?page={{ page_obj.previous_page_number }}">Prev</a></li>{% endif %}
+      <li class="page-item active"><span class="page-link bg-success border-success">{{ page_obj.number }}</span></li>
+      {% if page_obj.has_next %}<li class="page-item"><a class="page-link bg-dark text-white border-secondary" href="?page={{ page_obj.next_page_number }}">Next</a></li>{% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+</div>
+{% endblock %}

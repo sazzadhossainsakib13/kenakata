@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ category.name }} — KenaKata{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="/" style="color:var(--kk-primary);">Home</a></li>
+      <li class="breadcrumb-item"><a href="/shop/" style="color:var(--kk-primary);">Shop</a></li>
+      <li class="breadcrumb-item active">{{ category.name }}</li>
+    </ol>
+  </nav>
+
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h1 class="h4 fw-800 mb-1" style="color:var(--kk-gray-900);">{{ category.name }}</h1>
+      <p class="mb-0 small text-muted">{{ total_count }} products</p>
+    </div>
+    <select class="kk-select" style="width:auto;" onchange="window.location.search='sort='+this.value">
+      <option value="popular" {% if sort == 'popular' %}selected{% endif %}>Most Popular</option>
+      <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest</option>
+      <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price ↑</option>
+      <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price ↓</option>
+      <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Top Rated</option>
+    </select>
+  </div>
+
+  <!-- Subcategories -->
+  {% if subcategories %}
+  <div class="d-flex gap-2 flex-wrap mb-4">
+    {% for sub in subcategories %}
+    <a href="{{ sub.get_absolute_url }}" class="badge rounded-pill" style="background:var(--kk-primary-50);color:var(--kk-primary);padding:8px 16px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid var(--kk-primary-100);">
+      {{ sub.name }}
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if page_obj.object_list %}
+  <div class="products-grid">
+    {% for product in page_obj %}
+    {% include 'includes/product_card.html' with product=product %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon"><i class="bi bi-box-seam"></i></div>
+    <h2 class="empty-state-title">No products in {{ category.name }}</h2>
+    <p class="empty-state-desc">Check back soon — we're adding new products daily!</p>
+    <a href="/shop/" class="btn-kk-primary">Browse All Products</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

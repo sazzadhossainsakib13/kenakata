@@ -1,0 +1,96 @@
+{% load static %}
+{% comment %}
+Usage: {% include 'includes/product_card.html' with product=product %}
+{% endcomment %}
+<div class="product-card h-100">
+  <!-- Image -->
+  <div class="product-card-img">
+    <a href="{{ product.get_absolute_url }}">
+      {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+      {% else %}
+        <div class="product-card-placeholder">
+          <i class="bi bi-image"></i>
+        </div>
+      {% endif %}
+    </a>
+    <!-- Badges -->
+    <div class="product-badge">
+      {% if product.discount_percentage > 0 %}
+      <span class="badge-discount">{{ product.discount_percentage }}% OFF</span>
+      {% endif %}
+      {% if product.flash_sale %}
+      <span class="badge-flash">⚡ Flash</span>
+      {% endif %}
+      {% if product.new_arrival %}
+      <span class="badge-new">New</span>
+      {% endif %}
+    </div>
+    <!-- Wishlist Button -->
+    {% if user.is_authenticated %}
+    <button class="product-wishlist-btn {% if product.id in wishlist_product_ids %}active{% endif %}"
+            onclick="toggleWishlist({{ product.id }}, this)"
+            title="Add to Wishlist">
+      <i class="bi {% if product.id in wishlist_product_ids %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
+    </button>
+    {% else %}
+    <a href="/auth/login/?next={{ request.path }}" class="product-wishlist-btn" title="Add to Wishlist">
+      <i class="bi bi-heart"></i>
+    </a>
+    {% endif %}
+  </div>
+
+  <!-- Body -->
+  <div class="product-card-body">
+    <div class="product-category">{{ product.category.name }}</div>
+    <a href="{{ product.get_absolute_url }}" style="text-decoration:none;">
+      <h3 class="product-title">{{ product.name }}</h3>
+    </a>
+    <!-- Rating -->
+    {% if product.review_count > 0 %}
+    <div class="product-rating">
+      <div class="stars">
+        {% for i in "12345" %}
+          {% with i_int=forloop.counter %}
+            {% if product.average_rating >= i_int %}
+              <i class="bi bi-star-fill star-filled"></i>
+            {% elif product.average_rating >= i_int|add:"-0.5" %}
+              <i class="bi bi-star-half star-half"></i>
+            {% else %}
+              <i class="bi bi-star star-empty"></i>
+            {% endif %}
+          {% endwith %}
+        {% endfor %}
+      </div>
+      <span class="rating-count">({{ product.review_count }})</span>
+    </div>
+    {% endif %}
+    <!-- Price -->
+    <div class="product-price">
+      {% if product.discount_price %}
+      <span class="price-sale bdt">৳{{ product.discount_price|floatformat:"0" }}</span>
+      <span class="price-original bdt">৳{{ product.regular_price|floatformat:"0" }}</span>
+      {% else %}
+      <span class="price-regular bdt">৳{{ product.regular_price|floatformat:"0" }}</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="product-card-footer">
+    {% if product.is_in_stock %}
+    <form method="POST" action="/cart/add/{{ product.id }}/" class="add-to-cart-form">
+      {% csrf_token %}
+      <input type="hidden" name="quantity" value="1">
+      <button type="submit" class="btn-add-cart">
+        <i class="bi bi-cart-plus"></i> Add to Cart
+      </button>
+    </form>
+    {% else %}
+    <button class="btn-add-cart out-of-stock" disabled>
+      <i class="bi bi-x-circle"></i> Out of Stock
+    </button>
+    {% endif %}
+  </div>
+</div>
+

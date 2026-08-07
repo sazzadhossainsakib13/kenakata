@@ -1,0 +1,315 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{% block meta_description %}KenaKata — Bangladesh's premium online marketplace. Shop electronics, fashion, groceries and more with Cash on Delivery.{% endblock %}">
+  <title>{% block title %}KenaKata | Bangladesh's Premium Marketplace{% endblock %}</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- KenaKata CSS -->
+  <link href="{% static 'css/base.css' %}" rel="stylesheet">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- ============ ANNOUNCEMENT BAR ============ -->
+<div class="announcement-bar d-none d-sm-block">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center">
+      <span>🇧🇩 Bangladesh's Premium Online Marketplace</span>
+      <div class="marquee-content">
+        <span>🚚 Free delivery on orders over ৳1000</span>
+        <span class="separator">|</span>
+        <span>💰 Cash on Delivery Available Nationwide</span>
+        <span class="separator">|</span>
+        <span>🔥 Flash Sale — Up to 40% Off</span>
+      </div>
+      <span>📞 Support: 01700-000000</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MAIN NAVBAR ============ -->
+<nav class="kk-navbar">
+  <div class="container">
+    <div class="d-flex align-items-center gap-3">
+      <!-- Logo -->
+      <a href="/" class="kk-logo me-2" style="text-decoration:none;">
+        <div class="kk-logo-icon">
+          <i class="bi bi-bag-heart-fill"></i>
+        </div>
+        <div class="kk-logo-text">
+          <span class="kk-logo-name">KenaKata</span>
+          <span class="kk-logo-tagline">কেনাকাটা</span>
+        </div>
+      </a>
+
+      <!-- Search Bar -->
+      <div class="kk-search flex-grow-1 d-none d-md-block">
+        <form class="kk-search-form" action="/search/" method="GET">
+          <input type="text" name="q" class="kk-search-input"
+                 placeholder="Search products, brands and categories..."
+                 value="{{ request.GET.q|default:'' }}" autocomplete="off">
+          <button type="submit" class="kk-search-btn">
+            <i class="bi bi-search"></i>
+          </button>
+        </form>
+      </div>
+
+      <!-- Nav Actions -->
+      <div class="kk-nav-actions ms-auto">
+        <!-- Account -->
+        {% if user.is_authenticated %}
+        <div class="dropdown">
+          <a class="kk-nav-btn" href="#" data-bs-toggle="dropdown" aria-expanded="false" id="accountDropdown">
+            <i class="bi bi-person-circle"></i>
+            <span class="d-none d-lg-block">{{ user.first_name|default:user.username }}</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-1" style="min-width:200px;">
+            <li><div class="px-3 py-2 border-bottom">
+              <div class="fw-700 text-dark small">{{ user.get_full_name|default:user.username }}</div>
+              <div class="text-muted" style="font-size:11px;">{{ user.email }}</div>
+            </div></li>
+            <li><a class="dropdown-item py-2" href="/account/"><i class="bi bi-grid me-2 text-primary"></i>Dashboard</a></li>
+            <li><a class="dropdown-item py-2" href="/account/orders/"><i class="bi bi-bag me-2 text-primary"></i>My Orders</a></li>
+            <li><a class="dropdown-item py-2" href="/account/wishlist/"><i class="bi bi-heart me-2 text-danger"></i>Wishlist</a></li>
+            <li><a class="dropdown-item py-2" href="/account/profile/"><i class="bi bi-person me-2 text-secondary"></i>Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item py-2 text-danger" href="/auth/logout/"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+          </ul>
+        </div>
+        {% else %}
+        <a class="kk-nav-btn" href="/auth/login/">
+          <i class="bi bi-person"></i>
+          <span class="d-none d-lg-block">Login</span>
+        </a>
+        {% endif %}
+
+        <!-- Wishlist -->
+        <a class="kk-nav-btn" href="/wishlist/" title="Wishlist">
+          <i class="bi bi-heart"></i>
+          <span class="d-none d-lg-block">Wishlist</span>
+          {% if wishlist_count > 0 %}
+          <span class="badge wishlist-count-badge">{{ wishlist_count }}</span>
+          {% else %}
+          <span class="badge wishlist-count-badge" style="display:none;">0</span>
+          {% endif %}
+        </a>
+
+        <!-- Cart -->
+        <a class="kk-nav-btn cart-nav-btn" href="/cart/" title="Cart">
+          <i class="bi bi-cart3"></i>
+          <span class="d-none d-lg-block">Cart</span>
+          {% if cart_count > 0 %}
+          <span class="badge cart-count-badge">{{ cart_count }}</span>
+          {% else %}
+          <span class="badge cart-count-badge" style="display:none;">0</span>
+          {% endif %}
+        </a>
+
+        <!-- Mobile Search -->
+        <button class="kk-nav-btn d-md-none mobile-search-toggle border-0 bg-transparent">
+          <i class="bi bi-search"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Search Box -->
+    <div class="mobile-search-box mt-2 d-md-none" style="display:none!important;">
+      <form class="kk-search-form" action="/search/" method="GET">
+        <input type="text" name="q" class="kk-search-input" placeholder="Search products...">
+        <button type="submit" class="kk-search-btn"><i class="bi bi-search"></i></button>
+      </form>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ CATEGORY NAV ============ -->
+{% if nav_categories %}
+<div class="kk-category-nav d-none d-md-block">
+  <div class="container">
+    <ul class="nav-list">
+      <li class="nav-item">
+        <a href="/shop/"><i class="bi bi-grid-fill"></i> All Categories</a>
+      </li>
+      {% for cat in nav_categories %}
+      <li class="nav-item">
+        <a href="{{ cat.get_absolute_url }}">
+          {% if cat.icon %}<i class="bi {{ cat.icon }}"></i>{% endif %}
+          {{ cat.name }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endif %}
+
+<!-- ============ MESSAGES ============ -->
+{% if messages %}
+<div class="messages-container" id="messages-container">
+  {% for message in messages %}
+  <div class="message-alert {{ message.tags }}">
+    {% if message.tags == 'success' %}<i class="bi bi-check-circle-fill"></i>
+    {% elif message.tags == 'danger' %}<i class="bi bi-x-circle-fill"></i>
+    {% elif message.tags == 'warning' %}<i class="bi bi-exclamation-triangle-fill"></i>
+    {% else %}<i class="bi bi-info-circle-fill"></i>{% endif %}
+    <span>{{ message }}</span>
+    <button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;margin-left:auto;font-size:16px;opacity:0.6;">&times;</button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- ============ CSRF TOKEN (for AJAX) ============ -->
+{% csrf_token %}
+
+<!-- ============ MAIN CONTENT ============ -->
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="kk-footer">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-3 col-md-6">
+        <div class="footer-brand">
+          <span class="footer-logo-name">🛍️ KenaKata</span>
+          <p class="footer-desc mt-2">Bangladesh's modern marketplace for everything you need — from technology and fashion to groceries and everyday essentials.</p>
+        </div>
+        <div class="d-flex gap-3 mt-3">
+          <a href="#" class="text-white-50" style="font-size:20px;"><i class="bi bi-facebook"></i></a>
+          <a href="#" class="text-white-50" style="font-size:20px;"><i class="bi bi-instagram"></i></a>
+          <a href="#" class="text-white-50" style="font-size:20px;"><i class="bi bi-youtube"></i></a>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-6 col-6">
+        <h6 class="footer-heading">Shop</h6>
+        <ul class="footer-links">
+          <li><a href="/shop/">All Products</a></li>
+          <li><a href="/shop/?sort=newest">New Arrivals</a></li>
+          <li><a href="/shop/?on_sale=1">Sale Items</a></li>
+          <li><a href="/shop/?sort=popular">Best Sellers</a></li>
+          <li><a href="/search/?q=electronics">Electronics</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-md-6 col-6">
+        <h6 class="footer-heading">Account</h6>
+        <ul class="footer-links">
+          <li><a href="/auth/login/">Login</a></li>
+          <li><a href="/auth/register/">Register</a></li>
+          <li><a href="/account/orders/">My Orders</a></li>
+          <li><a href="/account/addresses/">Addresses</a></li>
+          <li><a href="/wishlist/">Wishlist</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-md-6 col-6">
+        <h6 class="footer-heading">Help</h6>
+        <ul class="footer-links">
+          <li><a href="/track-order/">Track Order</a></li>
+          <li><a href="#">Returns Policy</a></li>
+          <li><a href="#">Shipping Info</a></li>
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <h6 class="footer-heading">We Deliver Across Bangladesh</h6>
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          <span class="badge" style="background:rgba(255,255,255,0.1);font-size:11px;">Dhaka</span>
+          <span class="badge" style="background:rgba(255,255,255,0.1);font-size:11px;">Chattogram</span>
+          <span class="badge" style="background:rgba(255,255,255,0.1);font-size:11px;">Rajshahi</span>
+          <span class="badge" style="background:rgba(255,255,255,0.1);font-size:11px;">Khulna</span>
+          <span class="badge" style="background:rgba(255,255,255,0.1);font-size:11px;">Sylhet</span>
+          <span class="badge" style="background:rgba(255,255,255,0.1);font-size:11px;">Barishal</span>
+          <span class="badge" style="background:rgba(255,255,255,0.1);font-size:11px;">Rangpur</span>
+          <span class="badge" style="background:rgba(255,255,255,0.1);font-size:11px;">Mymensingh</span>
+        </div>
+        <div class="d-flex align-items-center gap-2 mt-2" style="color:rgba(255,255,255,0.5);font-size:13px;">
+          <i class="bi bi-truck" style="font-size:20px;color:var(--kk-accent);"></i>
+          <div>
+            <div style="color:white;font-weight:600;">Cash on Delivery</div>
+            <div style="font-size:11px;">Pay when your order arrives</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom mt-5">
+    <div class="container">
+      <div class="footer-bottom-text">
+        &copy; 2026 KenaKata (কেনাকাটা). Made with ❤️ for Bangladesh &nbsp;|&nbsp; All prices in BDT (৳)
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ MOBILE BOTTOM NAV ============ -->
+<nav class="mobile-bottom-nav d-md-none">
+  <div class="nav-items">
+    <a href="/" class="mobile-nav-item {% if request.path == '/' %}active{% endif %}">
+      <i class="bi bi-house{% if request.path == '/' %}-fill{% endif %}"></i>
+      <span>Home</span>
+    </a>
+    <a href="/shop/" class="mobile-nav-item {% if '/shop/' in request.path or '/category/' in request.path %}active{% endif %}">
+      <i class="bi bi-grid{% if '/shop/' in request.path %}3x3-gap-fill{% else %}3x3-gap{% endif %}"></i>
+      <span>Shop</span>
+    </a>
+    <a href="/wishlist/" class="mobile-nav-item {% if '/wishlist/' in request.path %}active{% endif %}">
+      <i class="bi bi-heart{% if '/wishlist/' in request.path %}-fill{% endif %}"></i>
+      <span>Wishlist</span>
+      {% if wishlist_count > 0 %}
+      <span class="position-absolute top-0 start-50 badge rounded-pill bg-danger" style="font-size:9px;">{{ wishlist_count }}</span>
+      {% endif %}
+    </a>
+    <a href="/cart/" class="mobile-nav-item {% if '/cart/' in request.path %}active{% endif %}" style="position:relative;">
+      <i class="bi bi-cart3{% if '/cart/' in request.path %} text-primary{% endif %}"></i>
+      <span>Cart</span>
+      {% if cart_count > 0 %}
+      <span class="position-absolute badge rounded-pill bg-danger" style="font-size:9px;top:0;right:4px;">{{ cart_count }}</span>
+      {% endif %}
+    </a>
+    <a href="{% if user.is_authenticated %}/account/{% else %}/auth/login/{% endif %}" class="mobile-nav-item {% if '/account/' in request.path %}active{% endif %}">
+      <i class="bi bi-person{% if '/account/' in request.path %}-fill{% endif %}"></i>
+      <span>Account</span>
+    </a>
+  </div>
+</nav>
+
+<!-- ============ BACK TO TOP ============ -->
+<button class="back-to-top" title="Back to top"><i class="bi bi-arrow-up"></i></button>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- KenaKata JS -->
+<script src="{% static 'js/main.js' %}"></script>
+
+{% block extra_js %}{% endblock %}
+
+<!-- Mobile Search Toggle Fix -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const toggle = document.querySelector('.mobile-search-toggle');
+  const box = document.querySelector('.mobile-search-box');
+  if (toggle && box) {
+    toggle.addEventListener('click', function() {
+      if (box.style.display === 'none' || box.style.display === '') {
+        box.style.display = 'block';
+        box.querySelector('input')?.focus();
+      } else {
+        box.style.display = 'none';
+      }
+    });
+  }
+});
+</script>
+</body>
+</html>

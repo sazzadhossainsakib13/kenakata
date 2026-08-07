@@ -1,0 +1,43 @@
+{% load static %}
+<div class="dashboard-sidebar">
+  <div class="dashboard-user-info">
+    <div class="dashboard-avatar">
+      {% if request.user.profile.avatar %}
+      <img src="{{ request.user.profile.avatar.url }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+      {% else %}
+      {{ request.user.first_name|first|upper|default:request.user.username|first|upper }}
+      {% endif %}
+    </div>
+    <div class="dashboard-user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+    <div class="dashboard-user-email">{{ request.user.email }}</div>
+  </div>
+
+  <a href="/account/" class="dashboard-nav-item {% if request.path == '/account/' %}active{% endif %}">
+    <i class="bi bi-grid-1x2"></i> Dashboard
+  </a>
+  <a href="/account/orders/" class="dashboard-nav-item {% if '/account/orders' in request.path %}active{% endif %}">
+    <i class="bi bi-bag-check"></i> My Orders
+  </a>
+  <a href="/account/wishlist/" class="dashboard-nav-item {% if '/account/wishlist' in request.path %}active{% endif %}">
+    <i class="bi bi-heart"></i> Wishlist
+  </a>
+  <a href="/account/addresses/" class="dashboard-nav-item {% if '/account/addresses' in request.path %}active{% endif %}">
+    <i class="bi bi-geo-alt"></i> Saved Addresses
+  </a>
+  <a href="/account/reviews/" class="dashboard-nav-item {% if '/account/reviews' in request.path %}active{% endif %}">
+    <i class="bi bi-star"></i> My Reviews
+  </a>
+  <a href="/account/profile/" class="dashboard-nav-item {% if '/account/profile' in request.path %}active{% endif %}">
+    <i class="bi bi-person"></i> Profile
+  </a>
+  <a href="/account/change-password/" class="dashboard-nav-item {% if '/account/change-password' in request.path %}active{% endif %}">
+    <i class="bi bi-lock"></i> Change Password
+  </a>
+  <a href="/track-order/" class="dashboard-nav-item">
+    <i class="bi bi-truck"></i> Track Order
+  </a>
+  <hr style="border-color:var(--kk-gray-100);margin:8px 0;">
+  <a href="/auth/logout/" class="dashboard-nav-item danger">
+    <i class="bi bi-box-arrow-right"></i> Logout
+  </a>
+</div>

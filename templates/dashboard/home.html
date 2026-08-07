@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}My Dashboard — KenaKata{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="row g-4">
+    <!-- Sidebar -->
+    <div class="col-lg-3">
+      {% include 'dashboard/sidebar.html' %}
+    </div>
+    <!-- Main Content -->
+    <div class="col-lg-9">
+      <!-- Stats -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--kk-primary-50);color:var(--kk-primary);"><i class="bi bi-bag-check"></i></div>
+            <div class="stat-value">{{ total_orders }}</div>
+            <div class="stat-label">Total Orders</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#fef3c7;color:#d97706;"><i class="bi bi-hourglass-split"></i></div>
+            <div class="stat-value">{{ processing }}</div>
+            <div class="stat-label">Processing</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="bi bi-check-circle"></i></div>
+            <div class="stat-value">{{ delivered }}</div>
+            <div class="stat-label">Delivered</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#fee2e2;color:#dc2626;"><i class="bi bi-heart"></i></div>
+            <div class="stat-value">{{ wishlist_count }}</div>
+            <div class="stat-label">Wishlist</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Orders -->
+      <div class="kk-card">
+        <div class="kk-card-header">
+          <span class="fw-700"><i class="bi bi-clock-history me-2"></i>Recent Orders</span>
+          <a href="/account/orders/" class="section-view-all" style="font-size:13px;">View All</a>
+        </div>
+        <div class="kk-card-body p-0">
+          {% if recent_orders %}
+          <div class="table-responsive">
+            <table class="table table-borderless mb-0">
+              <thead style="background:var(--kk-gray-50);border-bottom:1px solid var(--kk-gray-100);">
+                <tr>
+                  <th class="py-3 px-4 small fw-700 text-muted">Order</th>
+                  <th class="py-3 px-4 small fw-700 text-muted">Date</th>
+                  <th class="py-3 px-4 small fw-700 text-muted">Total</th>
+                  <th class="py-3 px-4 small fw-700 text-muted">Status</th>
+                  <th class="py-3 px-4 small fw-700 text-muted">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for order in recent_orders %}
+                <tr class="border-bottom">
+                  <td class="py-3 px-4">
+                    <div class="fw-700" style="color:var(--kk-primary);font-size:13px;">{{ order.order_number }}</div>
+                    <div class="small text-muted">{{ order.items.count }} item(s)</div>
+                  </td>
+                  <td class="py-3 px-4 small text-muted">{{ order.created_at|date:"d M Y" }}</td>
+                  <td class="py-3 px-4">
+                    <span class="fw-700 bdt" style="color:var(--kk-gray-800);">৳{{ order.total|floatformat:"0" }}</span>
+                  </td>
+                  <td class="py-3 px-4">
+                    <span class="order-status-badge status-{{ order.status }}">{{ order.get_status_display }}</span>
+                  </td>
+                  <td class="py-3 px-4">
+                    <a href="/account/orders/{{ order.order_number }}/" class="small fw-600" style="color:var(--kk-primary);">View</a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="empty-state py-5">
+            <div class="empty-state-icon" style="font-size:48px;"><i class="bi bi-bag-x"></i></div>
+            <p class="empty-state-desc">No orders yet. Start shopping!</p>
+            <a href="/shop/" class="btn-kk-primary" style="padding:10px 24px;font-size:14px;">Browse Products</a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

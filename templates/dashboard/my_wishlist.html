@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}My Wishlist — KenaKata{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="row g-4">
+    <div class="col-lg-3">{% include 'dashboard/sidebar.html' %}</div>
+    <div class="col-lg-9">
+      <div class="kk-card">
+        <div class="kk-card-header">
+          <span class="fw-700 h5 mb-0"><i class="bi bi-heart me-2 text-danger"></i>My Wishlist</span>
+          <span class="badge" style="background:var(--kk-danger);">{{ items.count }}</span>
+        </div>
+        <div class="kk-card-body">
+          {% if items %}
+          <div class="row g-3">
+            {% for item in items %}
+            <div class="col-sm-6 col-md-4">
+              {% include 'includes/product_card.html' with product=item.product %}
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="empty-state">
+            <div class="empty-state-icon"><i class="bi bi-heart"></i></div>
+            <h2 class="empty-state-title">Wishlist is empty</h2>
+            <p class="empty-state-desc">Add products you love to your wishlist</p>
+            <a href="/shop/" class="btn-kk-primary">Browse Products</a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

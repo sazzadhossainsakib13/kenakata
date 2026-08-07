@@ -1,0 +1,81 @@
+{% extends 'pos/base_pos.html' %}
+{% load static %}
+
+{% block title %}Store & POS Settings — {{ settings.store_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h3 fw-800 text-white mb-1"><i class="bi bi-sliders text-success me-2"></i>Store & POS Business Settings</h1>
+    <p class="text-muted mb-0 small">Dynamic configuration affecting receipts, low stock alerts, and cashier permissions</p>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="pos-card">
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <h2 class="h6 fw-700 text-white mb-3 border-bottom border-secondary pb-2"><i class="bi bi-shop me-2 text-primary"></i>Store Identity</h2>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label small text-muted">Store Name *</label>
+            <input type="text" name="store_name" class="form-control bg-dark text-white border-secondary" value="{{ settings.store_name }}" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small text-muted">Phone Number *</label>
+            <input type="text" name="phone" class="form-control bg-dark text-white border-secondary" value="{{ settings.phone }}" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small text-muted">Support Email</label>
+            <input type="email" name="email" class="form-control bg-dark text-white border-secondary" value="{{ settings.email }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small text-muted">Store Logo</label>
+            <input type="file" name="store_logo" class="form-control bg-dark text-white border-secondary" accept="image/*">
+          </div>
+          <div class="col-12">
+            <label class="form-label small text-muted">Store Address (printed on receipts)</label>
+            <textarea name="address" class="form-control bg-dark text-white border-secondary" rows="2">{{ settings.address }}</textarea>
+          </div>
+        </div>
+
+        <h2 class="h6 fw-700 text-white mb-3 border-bottom border-secondary pb-2"><i class="bi bi-receipt me-2 text-warning"></i>Receipt & Threshold Settings</h2>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label small text-muted">Receipt Number Prefix</label>
+            <input type="text" name="receipt_prefix" class="form-control bg-dark text-white border-secondary" value="{{ settings.receipt_prefix }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small text-muted">Low Stock Threshold Limit (Qty)</label>
+            <input type="number" name="low_stock_threshold" class="form-control bg-dark text-white border-secondary" value="{{ settings.low_stock_threshold }}" min="1" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label small text-muted">Receipt Footer Message</label>
+            <textarea name="receipt_footer" class="form-control bg-dark text-white border-secondary" rows="2">{{ settings.receipt_footer }}</textarea>
+          </div>
+        </div>
+
+        <h2 class="h6 fw-700 text-white mb-3 border-bottom border-secondary pb-2"><i class="bi bi-shield-lock me-2 text-info"></i>Cashier Discount Permissions</h2>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <div class="form-check mt-2">
+              <input class="form-check-input" type="checkbox" name="allow_pos_discount" value="1" id="allowDisc" {% if settings.allow_pos_discount %}checked{% endif %}>
+              <label class="form-check-label text-white small" for="allowDisc">Allow Manual POS Cart Discounts</label>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small text-muted">Max Cashier Discount Percentage (%)</label>
+            <input type="number" name="max_cashier_discount_percentage" class="form-control bg-dark text-white border-secondary" value="{{ settings.max_cashier_discount_percentage }}" step="0.01" min="0" max="100">
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn-pos-primary"><i class="bi bi-check2"></i> Save Store Settings</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

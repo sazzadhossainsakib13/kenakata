@@ -1,0 +1,249 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}KenaKata POS & Retail Operations{% endblock %}</title>
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --pos-bg: #0f172a;
+      --pos-card-bg: #1e293b;
+      --pos-sidebar-bg: #0b1329;
+      --pos-primary: #10b981;
+      --pos-primary-dark: #059669;
+      --pos-accent: #f97316;
+      --pos-text: #f8fafc;
+      --pos-muted: #94a3b8;
+      --pos-border: #334155;
+    }
+    body {
+      font-family: 'Inter', 'Hind Siliguri', sans-serif;
+      background: var(--pos-bg);
+      color: var(--pos-text);
+      min-height: 100vh;
+    }
+    .pos-sidebar {
+      width: 260px;
+      background: var(--pos-sidebar-bg);
+      border-right: 1px solid var(--pos-border);
+      min-height: 100vh;
+      position: fixed;
+      top: 0; left: 0; z-index: 100;
+      display: flex;
+      flex-direction: column;
+    }
+    .pos-brand {
+      padding: 20px;
+      border-bottom: 1px solid var(--pos-border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: white;
+    }
+    .pos-brand-icon {
+      width: 42px; height: 42px;
+      background: linear-gradient(135deg, var(--pos-primary), #047857);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; color: white;
+      box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+    }
+    .pos-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 20px;
+      color: var(--pos-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.15s ease;
+      border-left: 3px solid transparent;
+    }
+    .pos-nav-item i { font-size: 18px; width: 20px; }
+    .pos-nav-item:hover, .pos-nav-item.active {
+      color: white;
+      background: rgba(255,255,255,0.05);
+      border-left-color: var(--pos-primary);
+    }
+    .pos-main {
+      margin-left: 260px;
+      padding: 24px;
+    }
+    .pos-topbar {
+      background: var(--pos-card-bg);
+      border: 1px solid var(--pos-border);
+      border-radius: 16px;
+      padding: 14px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .pos-card {
+      background: var(--pos-card-bg);
+      border: 1px solid var(--pos-border);
+      border-radius: 16px;
+      padding: 20px;
+    }
+    .metric-card {
+      background: var(--pos-card-bg);
+      border: 1px solid var(--pos-border);
+      border-radius: 16px;
+      padding: 20px;
+      transition: transform 0.15s ease;
+    }
+    .metric-card:hover { transform: translateY(-3px); }
+    .metric-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 12px;
+    }
+    .metric-value { font-size: 28px; font-weight: 800; color: white; line-height: 1.1; }
+    .metric-label { font-size: 13px; color: var(--pos-muted); margin-top: 4px; }
+    
+    .table-dark-custom {
+      color: var(--pos-text);
+      --bs-table-bg: transparent;
+      --bs-table-border-color: var(--pos-border);
+    }
+    .table-dark-custom th {
+      color: var(--pos-muted);
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid var(--pos-border);
+    }
+
+    .btn-pos-primary {
+      background: linear-gradient(135deg, var(--pos-primary), #059669);
+      color: white; border: none; border-radius: 10px;
+      padding: 10px 20px; font-weight: 600; font-size: 14px;
+      display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+      transition: all 0.15s ease;
+    }
+    .btn-pos-primary:hover { opacity: 0.9; color: white; transform: translateY(-1px); }
+
+    .btn-pos-accent {
+      background: linear-gradient(135deg, var(--pos-accent), #ea6c0a);
+      color: white; border: none; border-radius: 10px;
+      padding: 10px 20px; font-weight: 600; font-size: 14px;
+      display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+    }
+    .btn-pos-outline {
+      background: transparent; color: var(--pos-text);
+      border: 1px solid var(--pos-border); border-radius: 10px;
+      padding: 8px 16px; font-weight: 500; font-size: 13px; text-decoration: none;
+    }
+    .btn-pos-outline:hover { background: rgba(255,255,255,0.08); color: white; }
+
+    @media (max-width: 991px) {
+      .pos-sidebar { width: 100%; height: auto; min-height: 0; position: static; }
+      .pos-main { margin-left: 0; }
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="pos-sidebar">
+  <a href="/pos/" class="pos-brand">
+    <div class="pos-brand-icon"><i class="bi bi-calculator-fill"></i></div>
+    <div>
+      <div class="fw-800" style="font-size:18px;letter-spacing:-0.5px;">KenaKata POS</div>
+      <div style="font-size:11px;color:var(--pos-muted);">Retail Operations & Terminal</div>
+    </div>
+  </a>
+
+  <div class="py-3 flex-grow-1">
+    <a href="/pos/" class="pos-nav-item {% if request.path == '/pos/' %}active{% endif %}">
+      <i class="bi bi-grid-1x2-fill"></i> Dashboard
+    </a>
+    <a href="/pos/terminal/" class="pos-nav-item {% if request.path == '/pos/terminal/' %}active{% endif %}" style="background:rgba(16,185,129,0.1);color:var(--pos-primary);font-weight:700;">
+      <i class="bi bi-aspect-ratio-fill"></i> Cashier Terminal
+    </a>
+    <a href="/pos/online-orders/" class="pos-nav-item {% if '/pos/online-orders/' in request.path %}active{% endif %}" style="color:#fbbf24;">
+      <i class="bi bi-truck-flatbed"></i> Online Web Orders
+    </a>
+    <a href="/pos/sales/" class="pos-nav-item {% if '/pos/sales/' in request.path or '/pos/sale/' in request.path %}active{% endif %}">
+      <i class="bi bi-receipt-cutoff"></i> Sales History
+    </a>
+    <a href="/pos/returns/" class="pos-nav-item {% if '/pos/returns/' in request.path %}active{% endif %}">
+      <i class="bi bi-arrow-counterclockwise"></i> Returns & Refunds
+    </a>
+    <a href="/pos/products/" class="pos-nav-item {% if '/pos/products/' in request.path or '/pos/add-product/' in request.path or '/pos/edit-product/' in request.path %}active{% endif %}">
+      <i class="bi bi-tags-fill"></i> Product Upload & Catalog
+    </a>
+    <a href="/pos/inventory/" class="pos-nav-item {% if '/pos/inventory/' in request.path %}active{% endif %}">
+      <i class="bi bi-box-seam-fill"></i> Shared Inventory
+    </a>
+    <a href="/pos/reports/" class="pos-nav-item {% if '/pos/reports/' in request.path %}active{% endif %}">
+      <i class="bi bi-bar-chart-line-fill"></i> Reports & Analytics
+    </a>
+    <a href="/pos/settings/" class="pos-nav-item {% if '/pos/settings/' in request.path %}active{% endif %}">
+      <i class="bi bi-sliders"></i> Store Settings
+    </a>
+    <a href="/admin/" class="pos-nav-item" target="_blank">
+      <i class="bi bi-shield-lock-fill"></i> Django Admin
+    </a>
+    <a href="/" class="pos-nav-item">
+      <i class="bi bi-shop"></i> View Storefront
+    </a>
+  </div>
+
+  <div class="p-3 border-top border-secondary text-muted small">
+    <div class="d-flex align-items-center gap-2 mb-1">
+      <div style="width:8px;height:8px;border-radius:50%;background:var(--pos-primary);"></div>
+      <span class="text-white fw-600">{{ request.user.username }}</span>
+    </div>
+    <div style="font-size:11px;">Staff Role: {% if request.user.is_superuser %}Super Admin{% else %}Seller / Cashier{% endif %}</div>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="pos-main">
+  <!-- TOPBAR -->
+  <div class="pos-topbar">
+    <div class="d-flex align-items-center gap-3">
+      <a href="/pos/terminal/" class="btn-pos-primary"><i class="bi bi-plus-circle-fill"></i> New POS Sale</a>
+      <a href="/pos/inventory/" class="btn-pos-outline"><i class="bi bi-box-seam"></i> Check Stock</a>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+      <span class="text-muted small"><i class="bi bi-clock me-1"></i>{% now "d M Y, g:i A" %}</span>
+      <a href="/auth/logout/" class="btn-pos-outline text-danger"><i class="bi bi-box-arrow-right"></i> Exit POS</a>
+    </div>
+  </div>
+
+  <!-- MESSAGES -->
+  {% if messages %}
+  <div class="mb-4">
+    {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show rounded-3" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% block content %}{% endblock %}
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

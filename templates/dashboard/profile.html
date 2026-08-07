@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}My Profile — KenaKata{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="row g-4">
+    <div class="col-lg-3">{% include 'dashboard/sidebar.html' %}</div>
+    <div class="col-lg-9">
+      <div class="kk-card">
+        <div class="kk-card-header"><span class="fw-700 h5 mb-0"><i class="bi bi-person me-2"></i>My Profile</span></div>
+        <div class="kk-card-body">
+          <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="kk-label required">First Name</label>
+                <input type="text" name="first_name" class="kk-input" value="{{ request.user.first_name }}" required>
+              </div>
+              <div class="col-md-6">
+                <label class="kk-label">Last Name</label>
+                <input type="text" name="last_name" class="kk-input" value="{{ request.user.last_name }}">
+              </div>
+              <div class="col-md-6">
+                <label class="kk-label">Email</label>
+                <input type="email" name="email" class="kk-input" value="{{ request.user.email }}">
+              </div>
+              <div class="col-md-6">
+                <label class="kk-label">Mobile</label>
+                <input type="text" name="mobile" class="kk-input" value="{{ profile.mobile }}" placeholder="01XXXXXXXXX">
+              </div>
+              <div class="col-md-6">
+                <label class="kk-label">Division</label>
+                <select name="division" class="kk-select">
+                  <option value="">Select Division</option>
+                  {% for val, label in divisions %}
+                  <option value="{{ val }}" {% if profile.division == val %}selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="kk-label">Profile Picture</label>
+                <input type="file" name="avatar" class="kk-input" accept="image/*">
+              </div>
+              <div class="col-12">
+                <button type="submit" class="btn-kk-primary"><i class="bi bi-check2"></i> Save Changes</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
