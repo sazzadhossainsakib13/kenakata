@@ -475,54 +475,174 @@ def receipt_detail(request, receipt_number):
 
 @pos_staff_required
 def sales_history(request):
-    """Filterable Sales History."""
-    sales_qs = POSSale.objects.select_related('cashier', 'customer').prefetch_related('items').order_by('-created_at')
+    """Filterable Sales History with 2 Categories: Offline (POS) & Online (E-Commerce Web)."""
+    from orders.models import Order, OrderItem
 
-    # Filters
+    # Parameters & Filters
+    channel_f = request.GET.get('channel', 'all').strip().lower()
     search_q = request.GET.get('q', '').strip()
     status_f = request.GET.get('status')
     cashier_id = request.GET.get('cashier_id')
     date_from = request.GET.get('date_from')
     date_to = request.GET.get('date_to')
 
+    offline_qs = POSSale.objects.select_related('cashier', 'customer').prefetch_related('items').all()
+    online_qs = Order.objects.select_related('user').prefetch_related('items').all()
+
+    # Search Filtering
     if search_q:
-        sales_qs = sales_qs.filter(
+        offline_qs = offline_qs.filter(
             Q(receipt_number__icontains=search_q) |
             Q(customer__name__icontains=search_q) |
             Q(customer__mobile__icontains=search_q) |
-            Q(cashier__username__icontains=search_q)
-        )
-    if status_f:
-        sales_qs = sales_qs.filter(status=status_f)
-    if cashier_id:
-        sales_qs = sales_qs.filter(cashier_id=cashier_id)
+            Q(cashier__username__icontains=search_q) |
+            Q(items__product_name_snapshot__icontains=search_q)
+        ).distinct()
 
+        online_qs = online_qs.filter(
+            Q(order_number__icontains=search_q) |
+            Q(recipient_name__icontains=search_q) |
+            Q(mobile__icontains=search_q) |
+            Q(district__icontains=search_q) |
+            Q(items__product_name__icontains=search_q)
+        ).distinct()
+
+    # Date Filtering
     if date_from:
         try:
             d1 = datetime.strptime(date_from, '%Y-%m-%d')
-            sales_qs = sales_qs.filter(created_at__gte=timezone.make_aware(datetime.combine(d1, time.min)))
+            start_dt = timezone.make_aware(datetime.combine(d1, time.min))
+            offline_qs = offline_qs.filter(created_at__gte=start_dt)
+            online_qs = online_qs.filter(created_at__gte=start_dt)
         except ValueError:
             pass
+
     if date_to:
         try:
             d2 = datetime.strptime(date_to, '%Y-%m-%d')
-            sales_qs = sales_qs.filter(created_at__lte=timezone.make_aware(datetime.combine(d2, time.max)))
+            end_dt = timezone.make_aware(datetime.combine(d2, time.max))
+            offline_qs = offline_qs.filter(created_at__lte=end_dt)
+            online_qs = online_qs.filter(created_at__lte=end_dt)
         except ValueError:
             pass
 
+    # Status Filtering
+    if status_f:
+        offline_qs = offline_qs.filter(status=status_f)
+        online_qs = online_qs.filter(status=status_f)
+
+    # Cashier Filtering (Applies to offline sales)
+    if cashier_id:
+        offline_qs = offline_qs.filter(cashier_id=cashier_id)
+
+    sales_records = []
+
+    # 1. Build Offline POS Sales
+    if channel_f in ['all', 'offline']:
+        for sale in offline_qs:
+            items_list = [
+                {
+                    'name': item.product_name_snapshot,
+                    'sku': item.sku_snapshot,
+                    'qty': item.quantity,
+                    'price': item.unit_price,
+                    'subtotal': item.line_total,
+                }
+                for item in sale.items.all()
+            ]
+            sales_records.append({
+                'channel': 'offline',
+                'channel_title': 'Offline POS',
+                'channel_badge_class': 'badge-channel-offline',
+                'channel_icon': 'bi-calculator-fill',
+                'reference_number': sale.receipt_number,
+                'created_at': sale.created_at,
+                'customer_name': sale.customer.name if sale.customer else 'Walk-in Customer',
+                'customer_mobile': sale.customer.mobile if sale.customer else '',
+                'cashier_or_source': sale.cashier.get_full_name() or sale.cashier.username,
+                'items_count': sale.items.count(),
+                'total_qty': sum(it['qty'] for it in items_list),
+                'items_list': items_list,
+                'subtotal': sale.subtotal,
+                'discount_amount': sale.discount_amount,
+                'total': sale.total,
+                'payment_info': f"{sale.payment_method} (Cash: ৳{sale.cash_received|floatformat:'0'})",
+                'status': sale.status,
+                'status_display': sale.get_status_display(),
+                'status_badge_class': 'bg-success' if sale.status == 'completed' else ('bg-warning text-dark' if sale.status == 'partially_returned' else ('bg-danger' if sale.status == 'returned' else 'bg-secondary')),
+                'detail_url': f'/pos/sale/{sale.receipt_number}/',
+                'receipt_url': f'/pos/receipt/{sale.receipt_number}/',
+                'can_print_receipt': True,
+            })
+
+    # 2. Build Online Web Orders
+    if channel_f in ['all', 'online']:
+        for order in online_qs:
+            items_list = [
+                {
+                    'name': item.product_name,
+                    'sku': getattr(item.product, 'sku', '') if item.product else '',
+                    'qty': item.quantity,
+                    'price': item.unit_price,
+                    'subtotal': item.subtotal,
+                }
+                for item in order.items.all()
+            ]
+            sales_records.append({
+                'channel': 'online',
+                'channel_title': 'Online Web',
+                'channel_badge_class': 'badge-channel-online',
+                'channel_icon': 'bi-globe-asia-australia',
+                'reference_number': order.order_number,
+                'created_at': order.created_at,
+                'customer_name': order.recipient_name,
+                'customer_mobile': order.mobile,
+                'cashier_or_source': f"Online ({order.district})",
+                'items_count': order.items.count(),
+                'total_qty': sum(it['qty'] for it in items_list),
+                'items_list': items_list,
+                'subtotal': order.subtotal,
+                'discount_amount': order.discount_amount,
+                'total': order.total,
+                'payment_info': f"{order.get_payment_method_display()} • {order.get_payment_status_display()}",
+                'status': order.status,
+                'status_display': order.get_status_display(),
+                'status_badge_class': 'bg-success' if order.status == 'delivered' else ('bg-primary' if order.status in ['confirmed', 'packed', 'handed_to_courier', 'out_for_delivery'] else ('bg-warning text-dark' if order.status == 'pending' else 'bg-secondary')),
+                'detail_url': f'/pos/online-orders/?q={order.order_number}',
+                'receipt_url': f'/checkout/order-confirmation/{order.order_number}/',
+                'can_print_receipt': False,
+            })
+
+    # Sort combined sales chronologically
+    sales_records.sort(key=lambda s: s['created_at'], reverse=True)
+
+    # Aggregated Metrics
+    offline_total_revenue = sum(s['total'] for s in sales_records if s['channel'] == 'offline')
+    online_total_revenue = sum(s['total'] for s in sales_records if s['channel'] == 'online')
+    combined_total_revenue = offline_total_revenue + online_total_revenue
+
+    offline_sales_count = len([s for s in sales_records if s['channel'] == 'offline'])
+    online_sales_count = len([s for s in sales_records if s['channel'] == 'online'])
+    total_items_sold_units = sum(s['total_qty'] for s in sales_records)
+
     cashiers = User.objects.filter(is_staff=True)
-    total_sales_amount = sales_qs.aggregate(s=Sum('total'))['s'] or Decimal('0.00')
 
     from django.core.paginator import Paginator
-    paginator = Paginator(sales_qs, 20)
+    paginator = Paginator(sales_records, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     context = {
         'page_obj': page_obj,
         'cashiers': cashiers,
-        'total_sales_amount': total_sales_amount,
-        'total_count': sales_qs.count(),
+        'channel_filter': channel_f,
+        'offline_total_revenue': offline_total_revenue,
+        'online_total_revenue': online_total_revenue,
+        'combined_total_revenue': combined_total_revenue,
+        'offline_sales_count': offline_sales_count,
+        'online_sales_count': online_sales_count,
+        'total_count': len(sales_records),
+        'total_items_sold_units': total_items_sold_units,
     }
     return render(request, 'pos/sales_history.html', context)
 
