@@ -10,14 +10,46 @@
 
 ---
 
-## 🌐 Live Production URL & Default Credentials
+## 🌐 Live URL & Access Portals
 
-- **Live URL**: [https://kenakata-o6l6.onrender.com/](https://kenakata-o6l6.onrender.com/)
-- **Superuser Admin Credentials**:
-  - **Username / Email**: `admin` or `admin@kenakata.com`
-  - **Password**: `admin1234`
-  - **Admin Panel**: `https://kenakata-o6l6.onrender.com/admin/`
-  - **POS Terminal**: `https://kenakata-o6l6.onrender.com/pos/terminal/`
+**Live Production URL**: [https://kenakata-o6l6.onrender.com/](https://kenakata-o6l6.onrender.com/)
+
+---
+
+### 🛡️ 1. Admin & Staff Access (Back-Office & POS)
+
+| Portal / Feature | Direct URL Path | Purpose / Description |
+| :--- | :--- | :--- |
+| **Django Admin Panel** | [`/admin/`](https://kenakata-o6l6.onrender.com/admin/) | Full database management, orders, products, users & banners |
+| **POS Cashier Terminal** | [`/pos/terminal/`](https://kenakata-o6l6.onrender.com/pos/terminal/) | Barcode checkout, instant stock deduction & thermal receipts |
+| **Sales History & Analytics** | [`/pos/sales-history/`](https://kenakata-o6l6.onrender.com/pos/sales-history/) | 2-Category Sales breakdown (**Offline POS Sales** vs. **Online Web Orders**) |
+| **Inventory & Products** | [`/pos/products/`](https://kenakata-o6l6.onrender.com/pos/products/) | SKU/Barcode management, inventory ledger & pricing |
+| **POS Settings & Cash Drawer** | [`/pos/settings/`](https://kenakata-o6l6.onrender.com/pos/settings/) | Cash drawer sessions, VAT/tax rates, and store profile |
+
+#### 🔑 Admin Credentials:
+* **Username / Email**: `admin` or `admin@kenakata.com`
+* **Password**: `admin1234`
+
+---
+
+### 🛍️ 2. Customer & User Access (Storefront & Orders)
+
+| Portal / Feature | Direct URL Path | Purpose / Description |
+| :--- | :--- | :--- |
+| **Customer Storefront** | [`/`](https://kenakata-o6l6.onrender.com/) | Homepage, Hero Slider, Flash Sales & Featured Products |
+| **Product Catalog & Shop** | [`/shop/`](https://kenakata-o6l6.onrender.com/shop/) | Search, category filtering, brand selection & price sliders |
+| **Shopping Cart** | [`/cart/`](https://kenakata-o6l6.onrender.com/cart/) | Active items, quantity adjustments & Coupon Discounts |
+| **Cash on Delivery Checkout** | [`/checkout/`](https://kenakata-o6l6.onrender.com/checkout/) | Bangladeshi division/district selection & order placement |
+| **Customer Dashboard** | [`/account/`](https://kenakata-o6l6.onrender.com/account/) | Live order status, order history, addresses & profile |
+| **Saved Wishlist** | [`/wishlist/`](https://kenakata-o6l6.onrender.com/wishlist/) | Customer favorite saved items |
+| **Universal Login** | [`/auth/login/`](https://kenakata-o6l6.onrender.com/auth/login/) | Login via **Username**, **Gmail/Email**, or **Mobile Number** |
+| **Account Registration** | [`/auth/register/`](https://kenakata-o6l6.onrender.com/auth/register/) | Instant new customer registration with mobile verification |
+
+#### 🎟️ Active Demo Promo Coupons:
+* `EID2026` — **20% Off** on orders over ৳3,000
+* `BDDEAL` — **15% Off** on orders over ৳2,000
+* `HACKATHON10` — **10% Off** on orders over ৳500
+* `WELCOME100` — **৳100 Flat Discount** on orders over ৳1,000
 
 ---
 
@@ -33,7 +65,7 @@
 - **Dynamic Catalog & Category Engine**: 30+ categories and subcategories (Electronics, Men's Fashion, Women's Fashion, Groceries, Sports, etc.).
 - **Smart Image Fallback**: Category-aware high-resolution CDN product imagery and vector SVG placeholders ensure zero broken images.
 - **Universal Multi-Method Login**: Customers can log in using their **Username**, **Gmail/Email**, or **Bangladeshi Mobile Number** (`01XXXXXXXXX`).
-- **Interactive Cart & Wishlist**: Persistent user sessions, item quantity adjustments, and dynamic coupon codes (`EID2026`, `BDDEAL`, `HACKATHON10`).
+- **Interactive Cart & Wishlist**: Persistent user sessions, item quantity adjustments, and dynamic coupon codes.
 - **Cash on Delivery (COD) Checkout**: Built-in Bangladesh division/district selection with automated delivery charges (Inside Dhaka vs. Outside Dhaka).
 - **Customer Dashboard**: Track live order status (`Pending`, `Processing`, `Delivered`, `Cancelled`), view itemized receipts, and leave product reviews.
 
