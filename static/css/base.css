@@ -419,6 +419,58 @@ body {
   color: var(--kk-primary-dark);
 }
 
+.promo-banner {
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+  text-decoration: none;
+}
+
+.promo-banner:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  color: white;
+}
+
+.promo-banner-title {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+
+.promo-banner-subtitle {
+  font-size: 13px;
+  opacity: 0.9;
+  margin-bottom: 16px;
+}
+
+.promo-banner-cta {
+  display: inline-block;
+  align-self: flex-start;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,0.3);
+  transition: all var(--transition-fast);
+}
+
+.promo-banner:hover .promo-banner-cta {
+  background: white;
+  color: var(--kk-gray-900);
+}
+
 /* ============================================
    SECTION HEADERS
    ============================================ */
