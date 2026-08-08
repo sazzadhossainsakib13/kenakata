@@ -54,3 +54,13 @@ class OrderCreationAndAuthorizationTest(TestCase):
         self.client.login(username='userb@example.com', password='password123')
         response = self.client.get(f'/account/orders/{self.order_a.order_number}/')
         self.assertEqual(response.status_code, 404)
+
+    def test_anonymous_cannot_access_order_detail(self):
+        response = self.client.get(f'/account/orders/{self.order_a.order_number}/')
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/auth/login/', response.url)
+
+    def test_unauthorized_user_cannot_access_order_success(self):
+        self.client.login(username='userb@example.com', password='password123')
+        response = self.client.get(f'/checkout/success/{self.order_a.order_number}/')
+        self.assertEqual(response.status_code, 302)

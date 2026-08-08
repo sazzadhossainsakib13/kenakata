@@ -19,13 +19,13 @@
             {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
             <div class="kk-form-group">
               <label class="kk-label required">Username, Email or Mobile</label>
-              <input type="text" name="email" class="kk-input" placeholder="admin, your@gmail.com, or 017XXXXXXXX"
+              <input type="text" name="email" class="kk-input {% if has_error %}is-invalid{% endif %}" placeholder="admin, your@gmail.com, or 017XXXXXXXX"
                      value="{{ form_data.email|default:'' }}" required autofocus>
             </div>
             <div class="kk-form-group">
               <label class="kk-label required">Password</label>
               <div class="position-relative">
-                <input type="password" name="password" class="kk-input" placeholder="Your password"
+                <input type="password" name="password" class="kk-input {% if has_error %}is-invalid{% endif %}" placeholder="Your password"
                        id="passwordInput" required style="padding-right:44px;">
                 <button type="button" onclick="togglePassword('passwordInput', this)"
                         style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--kk-gray-400);cursor:pointer;font-size:16px;">

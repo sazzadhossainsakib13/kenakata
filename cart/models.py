@@ -73,12 +73,19 @@ class Cart(models.Model):
         return Decimal('0.00')
 
     def get_delivery_charge(self, zone='outside_dhaka'):
+        if not self.items.exists():
+            return Decimal('0.00')
         from django.conf import settings
         charges = getattr(settings, 'DELIVERY_CHARGES', {'inside_dhaka': 60, 'outside_dhaka': 120})
         return Decimal(str(charges.get(zone, 120)))
 
     def get_total(self, zone='outside_dhaka'):
-        return self.get_subtotal() - self.get_coupon_discount() + self.get_delivery_charge(zone)
+        if not self.items.exists():
+            return Decimal('0.00')
+        subtotal = self.get_subtotal()
+        discount = self.get_coupon_discount()
+        delivery = self.get_delivery_charge(zone)
+        return max(Decimal('0.00'), subtotal - discount + delivery)
 
 
 class CartItem(models.Model):

@@ -264,13 +264,13 @@ function initMessages() {
 function initCartPage() {
   document.querySelectorAll('.cart-qty-input').forEach(input => {
     let debounce;
-    input.addEventListener('change', () => {
+    input.addEventListener('input', () => {
       clearTimeout(debounce);
       debounce = setTimeout(() => {
         const itemId = input.dataset.itemId;
-        const qty = input.value;
+        const qty = parseInt(input.value) || 1;
         updateCartItem(itemId, qty, input);
-      }, 500);
+      }, 400);
     });
   });
 }
@@ -292,17 +292,55 @@ function updateCartItem(itemId, qty, input) {
   .then(data => {
     if (data.success) {
       // Update item subtotal
-      const row = input.closest('tr') || input.closest('.cart-item');
+      const row = input ? (input.closest('tr') || input.closest('.cart-item')) : document.querySelector(`tr[data-item-id="${itemId}"]`);
       if (row) {
-        const subtotalEl = row.querySelector('.item-subtotal');
-        if (subtotalEl) subtotalEl.textContent = `৳${parseFloat(data.item_total).toLocaleString('bn-BD')}`;
+        const subtotalEl = row.querySelector('.item-subtotal') || row.querySelector(`[data-item-id="${itemId}"]`);
+        if (subtotalEl) {
+          const itemVal = Math.round(parseFloat(data.item_total) || 0);
+          subtotalEl.textContent = `৳${itemVal.toLocaleString('en-US')}`;
+        }
       }
-      // Update cart total
+
+      // Update cart subtotal
       const subtotalEl = document.getElementById('cart-subtotal');
-      if (subtotalEl) subtotalEl.textContent = `৳${parseFloat(data.cart_subtotal).toLocaleString()}`;
+      if (subtotalEl && data.cart_subtotal !== undefined) {
+        const subVal = Math.round(parseFloat(data.cart_subtotal) || 0);
+        subtotalEl.textContent = `৳${subVal.toLocaleString('en-US')}`;
+      }
+
+      // Update delivery charge
+      const deliveryEl = document.getElementById('cart-delivery');
+      if (deliveryEl && data.delivery_charge !== undefined) {
+        const delVal = Math.round(parseFloat(data.delivery_charge) || 0);
+        deliveryEl.textContent = `৳${delVal.toLocaleString('en-US')}`;
+      }
+
+      // Update coupon discount if present
+      const discountRow = document.getElementById('coupon-discount-row');
+      const discountEl = document.getElementById('cart-coupon-discount');
+      if (data.coupon_discount !== undefined) {
+        const discVal = Math.round(parseFloat(data.coupon_discount) || 0);
+        if (discountEl) discountEl.textContent = `−৳${discVal.toLocaleString('en-US')}`;
+        if (discountRow) discountRow.style.display = discVal > 0 ? '' : 'none';
+      }
+
+      // Update cart total
+      const totalEl = document.getElementById('cart-total');
+      if (totalEl && data.cart_total !== undefined) {
+        const totVal = Math.round(parseFloat(data.cart_total) || 0);
+        totalEl.textContent = `৳${totVal.toLocaleString('en-US')}`;
+      }
+
+      // Update summary item count
+      const summaryCountEl = document.getElementById('summary-item-count');
+      if (summaryCountEl && data.cart_count !== undefined) {
+        summaryCountEl.textContent = data.cart_count;
+      }
+
       updateCartCount(data.cart_count);
     }
-  });
+  })
+  .catch(err => console.error('Cart update error:', err));
 }
 
 function removeCartItem(itemId) {
@@ -319,23 +357,61 @@ function removeCartItem(itemId) {
   .then(r => r.json())
   .then(data => {
     if (data.success) {
-      const row = document.querySelector(`[data-item-id="${itemId}"]`)?.closest('tr') ||
+      const row = document.querySelector(`tr[data-item-id="${itemId}"]`) ||
+                  document.querySelector(`[data-item-id="${itemId}"]`)?.closest('tr') ||
                   document.querySelector(`[data-item-id="${itemId}"]`)?.closest('.cart-item');
       if (row) {
         row.style.opacity = '0';
         row.style.transform = 'translateX(-20px)';
         row.style.transition = 'all 0.3s ease';
-        setTimeout(() => { row.remove(); refreshCartTotals(); }, 300);
+        setTimeout(() => {
+          row.remove();
+          if (data.is_empty || data.cart_count === 0) {
+            window.location.reload();
+          } else {
+            // Update cart subtotal
+            const subtotalEl = document.getElementById('cart-subtotal');
+            if (subtotalEl && data.cart_subtotal !== undefined) {
+              const subVal = Math.round(parseFloat(data.cart_subtotal) || 0);
+              subtotalEl.textContent = `৳${subVal.toLocaleString('en-US')}`;
+            }
+
+            // Update delivery charge
+            const deliveryEl = document.getElementById('cart-delivery');
+            if (deliveryEl && data.delivery_charge !== undefined) {
+              const delVal = Math.round(parseFloat(data.delivery_charge) || 0);
+              deliveryEl.textContent = `৳${delVal.toLocaleString('en-US')}`;
+            }
+
+            // Update coupon discount
+            const discountRow = document.getElementById('coupon-discount-row');
+            const discountEl = document.getElementById('cart-coupon-discount');
+            if (data.coupon_discount !== undefined) {
+              const discVal = Math.round(parseFloat(data.coupon_discount) || 0);
+              if (discountEl) discountEl.textContent = `−৳${discVal.toLocaleString('en-US')}`;
+              if (discountRow) discountRow.style.display = discVal > 0 ? '' : 'none';
+            }
+
+            // Update total
+            const totalEl = document.getElementById('cart-total');
+            if (totalEl && data.cart_total !== undefined) {
+              const totVal = Math.round(parseFloat(data.cart_total) || 0);
+              totalEl.textContent = `৳${totVal.toLocaleString('en-US')}`;
+            }
+
+            // Update summary item count
+            const summaryCountEl = document.getElementById('summary-item-count');
+            if (summaryCountEl && data.cart_count !== undefined) {
+              summaryCountEl.textContent = data.cart_count;
+            }
+          }
+        }, 300);
       }
       updateCartCount(data.cart_count);
       showToast(data.message, 'success');
     }
-  });
-}
-
-function refreshCartTotals() {
-  // Simple page reload for cart totals after remove
-  window.location.reload();
+  })
+  .catch(err => console.error('Cart remove error:', err));
 }
 
 // ============================================

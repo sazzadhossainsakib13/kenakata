@@ -9,12 +9,20 @@ from django.utils import timezone
 
 def cart_detail(request):
     cart = get_or_create_cart(request)
-    items = cart.items.select_related('product').all()
+    items = cart.items.select_related('product', 'product__category').all()
+    subtotal = cart.get_subtotal()
+    coupon_discount = cart.get_coupon_discount()
+    delivery_charge = cart.get_delivery_charge()
+    total = cart.get_total()
+    cart_count = cart.get_item_count()
     context = {
         'cart': cart,
         'items': items,
-        'delivery_charge': cart.get_delivery_charge(),
-        'coupon_discount': cart.get_coupon_discount(),
+        'subtotal': subtotal,
+        'delivery_charge': delivery_charge,
+        'coupon_discount': coupon_discount,
+        'total': total,
+        'cart_count': cart_count,
     }
     return render(request, 'cart/cart_detail.html', context)
 
@@ -22,7 +30,10 @@ def cart_detail(request):
 def cart_add(request, product_id):
     if request.method == 'POST':
         product = get_object_or_404(Product, id=product_id, active=True)
-        quantity = int(request.POST.get('quantity', 1))
+        try:
+            quantity = int(request.POST.get('quantity', 1))
+        except (ValueError, TypeError):
+            quantity = 1
 
         if quantity < 1:
             quantity = 1
@@ -31,7 +42,7 @@ def cart_add(request, product_id):
 
         if product.stock < 1:
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'success': False, 'message': 'Product is out of stock.'})
+                return JsonResponse({'success': False, 'message': f"'{product.name}' is out of stock."})
             messages.error(request, f"'{product.name}' is out of stock.")
             return redirect(request.META.get('HTTP_REFERER', '/'))
 
@@ -51,7 +62,11 @@ def cart_add(request, product_id):
             return JsonResponse({
                 'success': True,
                 'message': msg,
-                'cart_count': cart.get_item_count()
+                'cart_count': cart.get_item_count(),
+                'cart_subtotal': str(cart.get_subtotal()),
+                'coupon_discount': str(cart.get_coupon_discount()),
+                'delivery_charge': str(cart.get_delivery_charge()),
+                'cart_total': str(cart.get_total()),
             })
         messages.success(request, msg)
         return redirect(request.META.get('HTTP_REFERER', '/'))
@@ -64,12 +79,22 @@ def cart_remove(request, item_id):
     product_name = item.product.name
     item.delete()
 
+    subtotal = cart.get_subtotal()
+    coupon_discount = cart.get_coupon_discount()
+    delivery_charge = cart.get_delivery_charge()
+    total = cart.get_total()
+    count = cart.get_item_count()
+
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({
             'success': True,
             'message': f"'{product_name}' removed from cart.",
-            'cart_count': cart.get_item_count(),
-            'subtotal': str(cart.get_subtotal()),
+            'cart_count': count,
+            'cart_subtotal': str(subtotal),
+            'coupon_discount': str(coupon_discount),
+            'delivery_charge': str(delivery_charge),
+            'cart_total': str(total),
+            'is_empty': count == 0,
         })
     messages.success(request, f"'{product_name}' removed from cart.")
     return redirect('cart:cart_detail')
@@ -79,20 +104,39 @@ def cart_update(request, item_id):
     if request.method == 'POST':
         cart = get_or_create_cart(request)
         item = get_object_or_404(CartItem, id=item_id, cart=cart)
-        quantity = int(request.POST.get('quantity', 1))
+        try:
+            quantity = int(request.POST.get('quantity', 1))
+        except (ValueError, TypeError):
+            quantity = 1
 
         if quantity < 1:
             item.delete()
+            item_total = '0'
+            item_qty = 0
         else:
             item.quantity = min(quantity, item.product.stock)
             item.save()
+            item_total = str(item.get_total_price())
+            item_qty = item.quantity
+
+        subtotal = cart.get_subtotal()
+        coupon_discount = cart.get_coupon_discount()
+        delivery_charge = cart.get_delivery_charge()
+        total = cart.get_total()
+        count = cart.get_item_count()
 
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': True,
-                'item_total': str(item.get_total_price()) if quantity >= 1 else '0',
-                'cart_subtotal': str(cart.get_subtotal()),
-                'cart_count': cart.get_item_count(),
+                'item_id': item_id,
+                'item_qty': item_qty,
+                'item_total': item_total,
+                'cart_subtotal': str(subtotal),
+                'coupon_discount': str(coupon_discount),
+                'delivery_charge': str(delivery_charge),
+                'cart_total': str(total),
+                'cart_count': count,
+                'is_empty': count == 0,
             })
     return redirect('cart:cart_detail')
 

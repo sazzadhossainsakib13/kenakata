@@ -74,8 +74,9 @@ def checkout(request):
         if errors:
             for error in errors:
                 messages.error(request, error)
-            context = _get_checkout_context(cart, items, saved_addresses, default_address)
-            context['form_data'] = request.POST
+            context = _get_checkout_context(request, cart, items, saved_addresses, default_address, form_data=request.POST)
+            context['field_errors'] = field_errors
+            context['errors'] = errors
             return render(request, 'orders/checkout.html', context)
 
         mobile = normalize_mobile(mobile)
@@ -222,49 +223,65 @@ def checkout(request):
                 return redirect('orders:order_success', order_number=order.order_number)
 
         except ValueError as e:
-            context = _get_checkout_context(request, cart, items, saved_addresses, default_address)
-            context['form_data'] = request.POST
+            messages.error(request, str(e))
+            context = _get_checkout_context(request, cart, items, saved_addresses, default_address, form_data=request.POST)
+            context['errors'] = [str(e)]
             return render(request, 'orders/checkout.html', context)
         except Exception as e:
             messages.error(request, "An error occurred while placing your order. Please try again.")
+            context = _get_checkout_context(request, cart, items, saved_addresses, default_address, form_data=request.POST)
+            context['errors'] = ["An error occurred while placing your order. Please try again."]
+            return render(request, 'orders/checkout.html', context)
 
     context = _get_checkout_context(request, cart, items, saved_addresses, default_address)
     return render(request, 'orders/checkout.html', context)
 
 
-def _get_checkout_context(request, cart, items, saved_addresses, default_address):
-    form_data = {}
-    if default_address:
-        form_data = {
-            'recipient_name': default_address.recipient_name,
-            'mobile': default_address.mobile,
-            'email': default_address.email or (request.user.email if request.user.is_authenticated else ''),
-            'division': default_address.division,
-            'district': default_address.district,
-            'upazila': default_address.upazila,
-            'area': default_address.area,
-            'road': default_address.road,
-            'house': default_address.house,
-            'postal_code': default_address.postal_code,
-        }
-    elif request.user.is_authenticated:
-        profile_mobile = ''
-        profile_division = ''
-        if hasattr(request.user, 'profile'):
-            profile_mobile = request.user.profile.mobile or ''
-            profile_division = request.user.profile.division or ''
-        form_data = {
-            'recipient_name': request.user.get_full_name() or request.user.username,
-            'mobile': profile_mobile,
-            'email': request.user.email or '',
-            'division': profile_division,
-            'district': '',
-            'upazila': '',
-            'area': '',
-            'road': '',
-            'house': '',
-            'postal_code': '',
-        }
+def _get_checkout_context(request, cart, items, saved_addresses, default_address, form_data=None):
+    if form_data is None:
+        if default_address:
+            form_data = {
+                'recipient_name': default_address.recipient_name,
+                'mobile': default_address.mobile,
+                'email': default_address.email or (request.user.email if request.user.is_authenticated else ''),
+                'division': default_address.division,
+                'district': default_address.district,
+                'upazila': default_address.upazila or '',
+                'area': default_address.area or '',
+                'road': default_address.road or '',
+                'house': default_address.house or '',
+                'postal_code': default_address.postal_code or '',
+                'delivery_instructions': default_address.delivery_instructions or '',
+            }
+        elif request.user.is_authenticated:
+            profile_mobile = ''
+            profile_division = ''
+            if hasattr(request.user, 'profile'):
+                profile_mobile = request.user.profile.mobile or ''
+                profile_division = request.user.profile.division or ''
+            form_data = {
+                'recipient_name': request.user.get_full_name() or request.user.username,
+                'mobile': profile_mobile,
+                'email': request.user.email or '',
+                'division': profile_division,
+                'district': '',
+                'upazila': '',
+                'area': '',
+                'road': '',
+                'house': '',
+                'postal_code': '',
+                'delivery_instructions': '',
+            }
+        else:
+            form_data = {}
+
+    division_val = str(form_data.get('division', '')).strip().lower()
+    district_val = str(form_data.get('district', '')).strip().lower()
+    zone = 'inside_dhaka' if division_val == 'dhaka' and (not district_val or district_val == 'dhaka') else 'outside_dhaka'
+    delivery_charge = cart.get_delivery_charge(zone)
+    subtotal = cart.get_subtotal()
+    coupon_discount = cart.get_coupon_discount()
+    total = cart.get_total(zone)
 
     return {
         'cart': cart,
@@ -272,31 +289,32 @@ def _get_checkout_context(request, cart, items, saved_addresses, default_address
         'saved_addresses': saved_addresses,
         'default_address': default_address,
         'divisions': BANGLADESH_DIVISIONS,
-        'subtotal': cart.get_subtotal(),
-        'coupon_discount': cart.get_coupon_discount(),
-        'delivery_charge': cart.get_delivery_charge(),
+        'subtotal': subtotal,
+        'coupon_discount': coupon_discount,
+        'delivery_charge': delivery_charge,
+        'total': total,
+        'delivery_zone': zone,
         'form_data': form_data,
     }
 
 
 def order_success(request, order_number):
-    order = Order.objects.filter(order_number__iexact=order_number).first()
-    if not order:
-        # Check session or user fallback
-        if request.user.is_authenticated:
-            order = Order.objects.filter(user=request.user).order_by('-created_at').first()
-        if not order:
-            last_order_num = request.session.get('last_order_number')
-            if last_order_num:
-                order = Order.objects.filter(order_number__iexact=last_order_num).first()
-        if not order:
-            order = Order.objects.order_by('-created_at').first()
+    order = None
+    if request.user.is_authenticated:
+        order = Order.objects.filter(order_number__iexact=order_number, user=request.user).first()
+        if not order and (request.user.is_staff or request.user.is_superuser):
+            order = Order.objects.filter(order_number__iexact=order_number).first()
 
     if not order:
-        messages.success(request, f"Order #{order_number} received! Thank you for shopping with KenaKata.")
-        return redirect('core:home')
+        last_order_num = request.session.get('last_order_number')
+        if last_order_num and last_order_num.lower() == str(order_number).lower():
+            order = Order.objects.filter(order_number__iexact=order_number).first()
 
-    return render(request, 'orders/order_success.html', {'order': order, 'order_number': order_number})
+    if not order:
+        messages.error(request, f"Order #{order_number} not found or you do not have permission to view it.")
+        return redirect('orders:order_list' if request.user.is_authenticated else 'core:home')
+
+    return render(request, 'orders/order_success.html', {'order': order, 'order_number': order.order_number})
 
 
 @login_required
@@ -305,17 +323,12 @@ def order_list(request):
     return render(request, 'orders/order_list.html', {'orders': orders})
 
 
+@login_required
 def order_detail(request, order_number):
-    order = Order.objects.filter(order_number__iexact=order_number).first()
-    if not order:
-        if request.user.is_authenticated:
-            order = Order.objects.filter(user=request.user).order_by('-created_at').first()
-        if not order:
-            order = Order.objects.order_by('-created_at').first()
-
-    if not order:
-        messages.error(request, f"Order #{order_number} not found.")
-        return redirect('orders:order_list' if request.user.is_authenticated else 'core:home')
+    if request.user.is_staff or request.user.is_superuser:
+        order = get_object_or_404(Order, order_number__iexact=order_number)
+    else:
+        order = get_object_or_404(Order, order_number__iexact=order_number, user=request.user)
 
     items = order.items.all()
     tracking_steps = order.get_status_display_steps() if hasattr(order, 'get_status_display_steps') else []

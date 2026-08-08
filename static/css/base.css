@@ -1206,6 +1206,28 @@ body {
   padding-right: 36px;
 }
 
+.kk-input.is-invalid,
+.kk-select.is-invalid,
+.kk-textarea.is-invalid {
+  border-color: var(--kk-danger) !important;
+  background-color: #fef2f2 !important;
+}
+
+.kk-input.is-invalid:focus,
+.kk-select.is-invalid:focus,
+.kk-textarea.is-invalid:focus {
+  border-color: var(--kk-danger) !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15) !important;
+}
+
+.invalid-feedback {
+  display: block;
+  font-size: 12px;
+  color: var(--kk-danger);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
 /* ============================================
    CARDS & LAYOUT
    ============================================ */

@@ -18,7 +18,8 @@
               <div class="col-6">
                 <div class="kk-form-group mb-0">
                   <label class="kk-label required">First Name</label>
-                  <input type="text" name="first_name" class="kk-input" placeholder="Rahim" value="{{ form_data.first_name|default:'' }}" required>
+                  <input type="text" name="first_name" class="kk-input {% if field_errors.first_name %}is-invalid{% endif %}" placeholder="Rahim" value="{{ form_data.first_name|default:'' }}" required>
+                  {% if field_errors.first_name %}<div class="invalid-feedback">{{ field_errors.first_name }}</div>{% endif %}
                 </div>
               </div>
               <div class="col-6">
@@ -30,26 +31,33 @@
             </div>
             <div class="kk-form-group mt-3">
               <label class="kk-label required">Email Address</label>
-              <input type="email" name="email" class="kk-input" placeholder="rahim@example.com" value="{{ form_data.email|default:'' }}" required>
+              <input type="email" name="email" class="kk-input {% if field_errors.email %}is-invalid{% endif %}" placeholder="rahim@example.com" value="{{ form_data.email|default:'' }}" required>
+              {% if field_errors.email %}<div class="invalid-feedback">{{ field_errors.email }}</div>{% endif %}
             </div>
             <div class="kk-form-group">
               <label class="kk-label required">Mobile Number</label>
               <div class="d-flex gap-2">
                 <span class="kk-input" style="width:fit-content;background:var(--kk-gray-50);font-weight:600;color:var(--kk-gray-700);">🇧🇩 +880</span>
-                <input type="text" name="mobile" class="kk-input flex-grow-1" placeholder="01XXXXXXXXX" value="{{ form_data.mobile|default:'' }}" required>
+                <input type="text" name="mobile" class="kk-input flex-grow-1 {% if field_errors.mobile %}is-invalid{% endif %}" placeholder="01XXXXXXXXX" value="{{ form_data.mobile|default:'' }}" required>
               </div>
+              {% if field_errors.mobile %}
+              <div class="invalid-feedback">{{ field_errors.mobile }}</div>
+              {% else %}
               <div class="small text-muted mt-1">Format: 01XXXXXXXXX (Bangladesh)</div>
+              {% endif %}
             </div>
             <div class="kk-form-group">
               <label class="kk-label required">Password</label>
               <div class="position-relative">
-                <input type="password" name="password" class="kk-input" placeholder="Min. 8 characters" id="pass1" required style="padding-right:44px;">
+                <input type="password" name="password" class="kk-input {% if field_errors.password %}is-invalid{% endif %}" placeholder="Min. 8 characters" id="pass1" required style="padding-right:44px;">
                 <button type="button" onclick="togglePassword('pass1',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--kk-gray-400);cursor:pointer;font-size:16px;"><i class="bi bi-eye"></i></button>
               </div>
+              {% if field_errors.password %}<div class="invalid-feedback">{{ field_errors.password }}</div>{% endif %}
             </div>
             <div class="kk-form-group">
               <label class="kk-label required">Confirm Password</label>
-              <input type="password" name="confirm_password" class="kk-input" placeholder="Repeat password" id="pass2" required>
+              <input type="password" name="confirm_password" class="kk-input {% if field_errors.confirm_password %}is-invalid{% endif %}" placeholder="Repeat password" id="pass2" required>
+              {% if field_errors.confirm_password %}<div class="invalid-feedback">{{ field_errors.confirm_password }}</div>{% endif %}
             </div>
             <div class="form-check mb-3">
               <input class="form-check-input" type="checkbox" id="agreeTerms" required>

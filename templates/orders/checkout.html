@@ -7,7 +7,7 @@
     <i class="bi bi-lock-fill me-2" style="color:var(--kk-primary);"></i>Secure Checkout
   </h1>
 
-  <form method="POST" id="checkoutForm">
+  <form method="POST" id="checkoutForm" novalidate>
     {% csrf_token %}
     <div class="row g-4">
       <!-- Left: Checkout Steps -->
@@ -24,10 +24,21 @@
             <div class="row g-2">
               {% for addr in saved_addresses %}
               <div class="col-md-6">
-                <div class="p-3 rounded-3 border cursor-pointer saved-address-card {% if forloop.first %}selected-addr{% endif %}"
+                <div class="p-3 rounded-3 border cursor-pointer saved-address-card {% if forloop.first and not errors %}selected-addr{% endif %}"
                      data-addr-id="{{ addr.id }}"
+                     data-recipient-name="{{ addr.recipient_name }}"
+                     data-mobile="{{ addr.mobile }}"
+                     data-email="{{ addr.email|default:'' }}"
+                     data-division="{{ addr.division }}"
+                     data-district="{{ addr.district }}"
+                     data-upazila="{{ addr.upazila|default:'' }}"
+                     data-area="{{ addr.area|default:'' }}"
+                     data-road="{{ addr.road|default:'' }}"
+                     data-house="{{ addr.house|default:'' }}"
+                     data-postal-code="{{ addr.postal_code|default:'' }}"
+                     data-instructions="{{ addr.delivery_instructions|default:'' }}"
                      onclick="selectAddress(this)"
-                     style="cursor:pointer;transition:all 0.15s;{% if forloop.first %}border-color:var(--kk-primary)!important;background:var(--kk-primary-50);{% endif %}">
+                     style="cursor:pointer;transition:all 0.15s;{% if forloop.first and not errors %}border-color:var(--kk-primary)!important;background:var(--kk-primary-50);{% endif %}">
                   <div class="d-flex align-items-center gap-2 mb-1">
                     <span class="badge" style="background:var(--kk-primary);font-size:10px;">{{ addr.get_label_display }}</span>
                     {% if addr.is_default %}<span class="badge bg-secondary" style="font-size:10px;">Default</span>{% endif %}
@@ -41,7 +52,7 @@
             </div>
             <div class="mt-3">
               <button type="button" class="btn btn-sm" style="color:var(--kk-primary);border:none;background:none;font-weight:600;" onclick="toggleAddressForm()">
-                <i class="bi bi-plus-circle me-1"></i> Enter a new address
+                <i class="bi bi-pencil-square me-1"></i> Edit / Enter address details
               </button>
             </div>
           </div>
@@ -58,22 +69,34 @@
             <div class="row g-3">
               <div class="col-md-6">
                 <div class="kk-form-group mb-0">
-                  <label class="kk-label required">Recipient Name</label>
-                  <input type="text" name="recipient_name" class="kk-input" placeholder="Full name" required
+                  <label class="kk-label required" for="id_recipient_name">Recipient Name</label>
+                  <input type="text" name="recipient_name" id="id_recipient_name"
+                         class="kk-input {% if field_errors.recipient_name %}is-invalid{% endif %}"
+                         placeholder="Full name" required
                          value="{{ form_data.recipient_name|default:'' }}">
+                  {% if field_errors.recipient_name %}
+                  <div class="invalid-feedback">{{ field_errors.recipient_name }}</div>
+                  {% endif %}
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="kk-form-group mb-0">
-                  <label class="kk-label required">Mobile Number</label>
-                  <input type="text" name="mobile" class="kk-input" placeholder="01XXXXXXXXX" required
+                  <label class="kk-label required" for="id_mobile">Mobile Number</label>
+                  <input type="text" name="mobile" id="id_mobile"
+                         class="kk-input {% if field_errors.mobile %}is-invalid{% endif %}"
+                         placeholder="01XXXXXXXXX" required
                          value="{{ form_data.mobile|default:'' }}">
+                  {% if field_errors.mobile %}
+                  <div class="invalid-feedback">{{ field_errors.mobile }}</div>
+                  {% else %}
+                  <div class="small text-muted mt-1" style="font-size:11px;">Format: 01XXXXXXXXX (11 digits)</div>
+                  {% endif %}
                 </div>
               </div>
               <div class="col-12">
                 <div class="kk-form-group mb-0">
-                  <label class="kk-label">Email Address</label>
-                  <input type="email" name="email" class="kk-input" placeholder="your@email.com"
+                  <label class="kk-label" for="id_email">Email Address</label>
+                  <input type="email" name="email" id="id_email" class="kk-input" placeholder="your@email.com"
                          value="{{ form_data.email|default:'' }}">
                 </div>
               </div>
@@ -81,61 +104,72 @@
               <!-- Division & District -->
               <div class="col-md-6">
                 <div class="kk-form-group mb-0">
-                  <label class="kk-label required">Division</label>
-                  <select name="division" class="kk-select" required onchange="updateDeliveryZone(this.value)">
+                  <label class="kk-label required" for="id_division">Division</label>
+                  <select name="division" id="id_division"
+                          class="kk-select {% if field_errors.division %}is-invalid{% endif %}"
+                          required onchange="updateDeliveryZone(this.value, document.getElementById('id_district')?.value)">
                     <option value="">Select Division</option>
                     {% for val, label in divisions %}
                     <option value="{{ label }}" {% if form_data.division == label or form_data.division == val %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
                   </select>
+                  {% if field_errors.division %}
+                  <div class="invalid-feedback">{{ field_errors.division }}</div>
+                  {% endif %}
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="kk-form-group mb-0">
-                  <label class="kk-label required">District</label>
-                  <input type="text" name="district" class="kk-input" placeholder="e.g. Dhaka, Gazipur..."
-                         value="{{ form_data.district|default:'' }}" required>
+                  <label class="kk-label required" for="id_district">District</label>
+                  <input type="text" name="district" id="id_district"
+                         class="kk-input {% if field_errors.district %}is-invalid{% endif %}"
+                         placeholder="e.g. Dhaka, Gazipur..."
+                         value="{{ form_data.district|default:'' }}" required
+                         oninput="updateDeliveryZone(document.getElementById('id_division')?.value, this.value)">
+                  {% if field_errors.district %}
+                  <div class="invalid-feedback">{{ field_errors.district }}</div>
+                  {% endif %}
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="kk-form-group mb-0">
-                  <label class="kk-label">Upazila / Thana</label>
-                  <input type="text" name="upazila" class="kk-input" placeholder="e.g. Dhanmondi, Mirpur..."
+                  <label class="kk-label" for="id_upazila">Upazila / Thana</label>
+                  <input type="text" name="upazila" id="id_upazila" class="kk-input" placeholder="e.g. Dhanmondi, Mirpur..."
                          value="{{ form_data.upazila|default:'' }}">
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="kk-form-group mb-0">
-                  <label class="kk-label">Area</label>
-                  <input type="text" name="area" class="kk-input" placeholder="Area / Neighborhood"
+                  <label class="kk-label" for="id_area">Area</label>
+                  <input type="text" name="area" id="id_area" class="kk-input" placeholder="Area / Neighborhood"
                          value="{{ form_data.area|default:'' }}">
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="kk-form-group mb-0">
-                  <label class="kk-label">Road</label>
-                  <input type="text" name="road" class="kk-input" placeholder="Road name / number"
+                  <label class="kk-label" for="id_road">Road</label>
+                  <input type="text" name="road" id="id_road" class="kk-input" placeholder="Road name / number"
                          value="{{ form_data.road|default:'' }}">
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="kk-form-group mb-0">
-                  <label class="kk-label">House / Building</label>
-                  <input type="text" name="house" class="kk-input" placeholder="House no. / Apt"
+                  <label class="kk-label" for="id_house">House / Building</label>
+                  <input type="text" name="house" id="id_house" class="kk-input" placeholder="House no. / Apt"
                          value="{{ form_data.house|default:'' }}">
                 </div>
               </div>
               <div class="col-md-4">
                 <div class="kk-form-group mb-0">
-                  <label class="kk-label">Postal Code</label>
-                  <input type="text" name="postal_code" class="kk-input" placeholder="1212"
+                  <label class="kk-label" for="id_postal_code">Postal Code</label>
+                  <input type="text" name="postal_code" id="id_postal_code" class="kk-input" placeholder="1212"
                          value="{{ form_data.postal_code|default:'' }}">
                 </div>
               </div>
               <div class="col-md-8">
                 <div class="kk-form-group mb-0">
-                  <label class="kk-label">Delivery Instructions</label>
-                  <input type="text" name="delivery_instructions" class="kk-input" placeholder="e.g. Call before delivery"
+                  <label class="kk-label" for="id_delivery_instructions">Delivery Instructions</label>
+                  <input type="text" name="delivery_instructions" id="id_delivery_instructions" class="kk-input" placeholder="e.g. Call before delivery"
                          value="{{ form_data.delivery_instructions|default:'' }}">
                 </div>
               </div>
@@ -171,8 +205,12 @@
               <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-truck" style="color:var(--kk-primary);font-size:18px;"></i>
                 <div>
-                  <div class="fw-600 small" id="deliveryZoneText">Select your division to see delivery charge</div>
-                  <div class="text-muted" style="font-size:12px;" id="deliveryTimeText">Estimated delivery time will appear here</div>
+                  <div class="fw-600 small" id="deliveryZoneText">
+                    {% if delivery_zone == 'inside_dhaka' %}৳60 — Inside Dhaka (1–2 business days){% else %}৳120 — Outside Dhaka (3–5 business days){% endif %}
+                  </div>
+                  <div class="text-muted" style="font-size:12px;" id="deliveryTimeText">
+                    {% if delivery_zone == 'inside_dhaka' %}Estimated: 1–2 business days{% else %}Estimated: 3–5 business days{% endif %}
+                  </div>
                 </div>
               </div>
             </div>
@@ -240,7 +278,7 @@
             {% endif %}
             <div class="summary-row total">
               <span>Total</span>
-              <span class="bdt" style="color:var(--kk-primary);" id="orderTotal">৳{{ cart.get_total|floatformat:"0" }}</span>
+              <span class="bdt" style="color:var(--kk-primary);" id="orderTotal">৳{{ total|floatformat:"0" }}</span>
             </div>
 
             <button type="submit" class="btn-kk-accent w-100 mt-4" style="justify-content:center;padding:15px;font-size:16px;" id="placeOrderBtn">
@@ -259,43 +297,132 @@
 
 {% block extra_js %}
 <script>
-const DHAKA_CHARGE = {{ delivery_charge|floatformat:"0" }};
-const OUTSIDE_CHARGE = 120;
 const SUBTOTAL = {{ subtotal|floatformat:"0" }};
 const COUPON_DISCOUNT = {{ coupon_discount|floatformat:"0" }};
 
-function updateDeliveryZone(divisionLabel) {
-  const isDhaka = divisionLabel.toLowerCase() === 'dhaka';
+function updateDeliveryZone(divisionLabel, districtLabel) {
+  const div = (divisionLabel || '').trim().toLowerCase();
+  const dist = (districtLabel || '').trim().toLowerCase();
+  const isDhaka = div === 'dhaka' && (!dist || dist === 'dhaka');
   const charge = isDhaka ? 60 : 120;
   const deliveryText = isDhaka ? '৳60 — Inside Dhaka (1–2 business days)' : '৳120 — Outside Dhaka (3–5 business days)';
   const timeText = isDhaka ? 'Estimated: 1–2 business days' : 'Estimated: 3–5 business days';
   
-  document.getElementById('deliveryZoneText').textContent = deliveryText;
-  document.getElementById('deliveryTimeText').textContent = timeText;
-  document.getElementById('deliveryCharge').textContent = '৳' + charge;
+  const zoneEl = document.getElementById('deliveryZoneText');
+  if (zoneEl) zoneEl.textContent = div ? deliveryText : 'Select your division to see delivery charge';
+  const timeEl = document.getElementById('deliveryTimeText');
+  if (timeEl) timeEl.textContent = div ? timeText : 'Estimated delivery time will appear here';
+  const chargeEl = document.getElementById('deliveryCharge');
+  if (chargeEl) chargeEl.textContent = '৳' + charge;
   
-  const total = SUBTOTAL + charge - COUPON_DISCOUNT;
-  document.getElementById('orderTotal').textContent = '৳' + total.toLocaleString();
+  const total = Math.max(0, SUBTOTAL + charge - COUPON_DISCOUNT);
+  const totalEl = document.getElementById('orderTotal');
+  if (totalEl) totalEl.textContent = '৳' + total.toLocaleString('en-US');
 }
 
 function selectAddress(card) {
   document.querySelectorAll('.saved-address-card').forEach(c => {
     c.style.borderColor = '';
     c.style.background = '';
+    c.classList.remove('selected-addr');
   });
   card.style.borderColor = 'var(--kk-primary)';
   card.style.background = 'var(--kk-primary-50)';
+  card.classList.add('selected-addr');
+
+  const setVal = (name, val) => {
+    const el = document.querySelector(`[name="${name}"]`);
+    if (el) el.value = val || '';
+  };
+
+  setVal('recipient_name', card.dataset.recipientName);
+  setVal('mobile', card.dataset.mobile);
+  setVal('email', card.dataset.email);
+  setVal('division', card.dataset.division);
+  setVal('district', card.dataset.district);
+  setVal('upazila', card.dataset.upazila);
+  setVal('area', card.dataset.area);
+  setVal('road', card.dataset.road);
+  setVal('house', card.dataset.house);
+  setVal('postal_code', card.dataset.postalCode);
+  setVal('delivery_instructions', card.dataset.instructions);
+
+  updateDeliveryZone(card.dataset.division, card.dataset.district);
 }
 
 function toggleAddressForm() {
   const form = document.getElementById('addressFormSection');
-  form.style.display = form.style.display === 'none' ? '' : '';
+  if (form) {
+    form.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('id_recipient_name')?.focus();
+  }
 }
 
-document.getElementById('placeOrderBtn')?.addEventListener('click', function() {
-  this.innerHTML = '<div class="spinner-border spinner-border-sm me-2"></div> Placing Order...';
-  this.disabled = true;
-  document.getElementById('checkoutForm').submit();
+document.addEventListener('DOMContentLoaded', () => {
+  const divSelect = document.getElementById('id_division');
+  const distInput = document.getElementById('id_district');
+  if (divSelect && divSelect.value) {
+    updateDeliveryZone(divSelect.value, distInput ? distInput.value : '');
+  }
+
+  const form = document.getElementById('checkoutForm');
+  const btn = document.getElementById('placeOrderBtn');
+
+  if (form && btn) {
+    form.addEventListener('submit', function(e) {
+      let valid = true;
+      const requiredFields = [
+        { id: 'id_recipient_name', name: 'Recipient Name' },
+        { id: 'id_mobile', name: 'Mobile Number' },
+        { id: 'id_division', name: 'Division' },
+        { id: 'id_district', name: 'District' }
+      ];
+
+      // Remove existing dynamic error states
+      form.querySelectorAll('.dynamic-error').forEach(el => el.remove());
+      form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+
+      for (const f of requiredFields) {
+        const input = document.getElementById(f.id);
+        if (input && !input.value.trim()) {
+          input.classList.add('is-invalid');
+          const err = document.createElement('div');
+          err.className = 'invalid-feedback dynamic-error';
+          err.textContent = `${f.name} is required.`;
+          input.parentNode.appendChild(err);
+          if (valid) {
+            input.focus();
+            valid = false;
+          }
+        }
+      }
+
+      const mobileInput = document.getElementById('id_mobile');
+      if (mobileInput && mobileInput.value.trim()) {
+        const cleaned = mobileInput.value.replace(/[\s\-\(\)]/g, '');
+        const bdPattern = /^(\+880|880|0)?1[3-9]\d{8}$/;
+        if (!bdPattern.test(cleaned)) {
+          mobileInput.classList.add('is-invalid');
+          const err = document.createElement('div');
+          err.className = 'invalid-feedback dynamic-error';
+          err.textContent = 'Please enter a valid Bangladesh mobile number (e.g. 01XXXXXXXXX).';
+          mobileInput.parentNode.appendChild(err);
+          if (valid) {
+            mobileInput.focus();
+            valid = false;
+          }
+        }
+      }
+
+      if (!valid) {
+        e.preventDefault();
+        return false;
+      }
+
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Placing Order...';
+      btn.style.pointerEvents = 'none';
+    });
+  }
 });
 </script>
 {% endblock %}

@@ -30,6 +30,8 @@ class AccountsValidationTest(TestCase):
 
 class AccountsAuthTest(TestCase):
     def setUp(self):
+        from django.core.cache import cache
+        cache.clear()
         self.user = User.objects.create_user(
             username='user@example.com',
             email='user@example.com',
@@ -37,6 +39,10 @@ class AccountsAuthTest(TestCase):
             first_name='Test',
             last_name='User'
         )
+
+    def tearDown(self):
+        from django.core.cache import cache
+        cache.clear()
 
     def test_login_success(self):
         response = self.client.post('/auth/login/', {
@@ -53,7 +59,24 @@ class AccountsAuthTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Invalid email or password.')
 
-    def test_protected_dashboard_redirects_anonymous(self):
-        response = self.client.get('/account/')
+    def test_open_redirect_prevention(self):
+        response = self.client.post('/auth/login/?next=https://evil.com/phishing', {
+            'email': 'user@example.com',
+            'password': 'password123'
+        })
         self.assertEqual(response.status_code, 302)
-        self.assertIn('/auth/login/', response.url)
+        self.assertEqual(response.url, '/account/')
+
+    def test_login_rate_limiting_lockout(self):
+        # 5 failed attempts
+        for _ in range(5):
+            self.client.post('/auth/login/', {
+                'email': 'user@example.com',
+                'password': 'wrongpassword'
+            })
+        # 6th attempt should be locked out
+        response = self.client.post('/auth/login/', {
+            'email': 'user@example.com',
+            'password': 'wrongpassword'
+        })
+        self.assertContains(response, 'temporarily locked')

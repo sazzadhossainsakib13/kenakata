@@ -10,6 +10,6 @@ services:
       - key: PYTHON_VERSION
         value: 3.10.12
       - key: DEBUG
-        value: "True"
+        value: "False"
       - key: SECRET_KEY
         generateValue: true
