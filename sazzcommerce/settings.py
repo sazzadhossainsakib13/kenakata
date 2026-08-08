@@ -20,7 +20,11 @@ if not SECRET_KEY:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', '*').split(',') if h.strip()]
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',') if h.strip()]
+if 'RENDER' in os.environ:
+    render_host = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+    if render_host:
+        ALLOWED_HOSTS.append(render_host)
 
 # Application definition
 INSTALLED_APPS = [
