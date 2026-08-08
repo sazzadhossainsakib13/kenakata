@@ -41,9 +41,9 @@ When a cashier completes a sale at the physical retail store using the barcode P
 | **Inventory Manager** | [`/pos/products/`](https://kenakata-o6l6.onrender.com/pos/products/) | Manage SKUs, pricing, stock levels, and real-time inventory adjustments |
 | **Store Settings** | [`/pos/settings/`](https://kenakata-o6l6.onrender.com/pos/settings/) | Cash drawer management, VAT rates, and low stock thresholds |
 
-#### 🔑 Superuser Credentials:
-* **Username / Email**: `admin` or `admin@kenakata.com`
-* **Password**: `admin1234`
+#### 🔑 Administrative & POS Access:
+* **Admin Login**: `/admin/` (Access via superuser account created via `python manage.py createsuperuser`)
+* **POS Terminal**: `/pos/terminal/` (Staff or Superuser account access)
 
 ---
 
