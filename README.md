@@ -41,9 +41,14 @@ When a cashier completes a sale at the physical retail store using the barcode P
 | **Inventory Manager** | [`/pos/products/`](https://kenakata-o6l6.onrender.com/pos/products/) | Manage SKUs, pricing, stock levels, and real-time inventory adjustments |
 | **Store Settings** | [`/pos/settings/`](https://kenakata-o6l6.onrender.com/pos/settings/) | Cash drawer management, VAT rates, and low stock thresholds |
 
-#### 🔑 Administrative & POS Access:
-* **Admin Login**: `/admin/` (Access via superuser account created via `python manage.py createsuperuser`)
-* **POS Terminal**: `/pos/terminal/` (Staff or Superuser account access)
+#### 🔑 Ready-to-Use Demo Login Credentials:
+You can log in at [`/auth/login/`](https://kenakata-o6l6.onrender.com/auth/login/) or [`/admin/`](https://kenakata-o6l6.onrender.com/admin/) using either **Username**, **Email**, or **Mobile**:
+
+| Role / Access Level | Username / Email | Password | Permissions & Capabilities |
+| :--- | :--- | :--- | :--- |
+| **👑 Super Admin / Owner** | `admin` or `admin@kenakata.com` | `admin1234` | Full Django Admin (`/admin/`), POS Terminal, Inventory, Sales Analytics & Settings |
+| **🏪 Store Staff / Cashier** | `staff` or `staff@kenakata.com` | `staff1234` | POS Barcode Terminal (`/pos/terminal/`), Cashier Register, Online/Offline Orders |
+| **🛍️ Customer / Buyer** | `customer` or `customer@kenakata.com` | `customer1234` | Storefront, Cart, Checkout, Wishlist, Order History & Address Book |
 
 ---
 

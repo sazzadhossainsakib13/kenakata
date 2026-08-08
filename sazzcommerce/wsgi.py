@@ -12,7 +12,7 @@ try:
     from django.contrib.auth.models import User
     from catalog.models import Product
     call_command('migrate', interactive=False)
-    if Product.objects.count() == 0:
+    if Product.objects.count() == 0 or User.objects.count() == 0:
         call_command('seed_data')
     
     # Optional superuser initialization from environment variables only (never hardcoded in code)

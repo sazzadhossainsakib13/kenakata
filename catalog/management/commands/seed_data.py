@@ -14,15 +14,73 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         self.stdout.write(self.style.WARNING('Seeding KenaKata demo data...'))
+        self._create_demo_users()
         self._create_brands()
         self._create_categories()
         self._create_products()
         self._create_coupons()
         self._create_banners()
         self._create_pos_demo_data()
-        self.stdout.write(self.style.SUCCESS('Demo data seeded successfully!'))
-        self.stdout.write(self.style.SUCCESS('Run: python manage.py createsuperuser'))
-        self.stdout.write(self.style.SUCCESS('Then: python manage.py runserver'))
+        self.stdout.write(self.style.SUCCESS('Demo data and demo accounts seeded successfully!'))
+        self.stdout.write(self.style.SUCCESS('  Admin: admin / admin1234 (admin@kenakata.com)'))
+        self.stdout.write(self.style.SUCCESS('  Staff: staff / staff1234 (staff@kenakata.com)'))
+        self.stdout.write(self.style.SUCCESS('  User:  customer / customer1234 (customer@kenakata.com)'))
+
+    def _create_demo_users(self):
+        from django.contrib.auth.models import User
+        from accounts.models import UserProfile
+
+        # 1. Admin / Superuser
+        admin_user, _ = User.objects.get_or_create(
+            username='admin',
+            defaults={
+                'email': 'admin@kenakata.com',
+                'first_name': 'Admin',
+                'last_name': 'KenaKata',
+                'is_staff': True,
+                'is_superuser': True,
+            }
+        )
+        admin_user.set_password('admin1234')
+        admin_user.is_staff = True
+        admin_user.is_superuser = True
+        admin_user.email = 'admin@kenakata.com'
+        admin_user.save()
+        UserProfile.objects.get_or_create(user=admin_user, defaults={'mobile': '01700000001', 'division': 'dhaka'})
+
+        # 2. Staff / POS Cashier
+        staff_user, _ = User.objects.get_or_create(
+            username='staff',
+            defaults={
+                'email': 'staff@kenakata.com',
+                'first_name': 'Staff',
+                'last_name': 'Member',
+                'is_staff': True,
+                'is_superuser': False,
+            }
+        )
+        staff_user.set_password('staff1234')
+        staff_user.is_staff = True
+        staff_user.email = 'staff@kenakata.com'
+        staff_user.save()
+        UserProfile.objects.get_or_create(user=staff_user, defaults={'mobile': '01700000002', 'division': 'dhaka'})
+
+        # 3. Regular Customer
+        customer_user, _ = User.objects.get_or_create(
+            username='customer',
+            defaults={
+                'email': 'customer@kenakata.com',
+                'first_name': 'Demo',
+                'last_name': 'Customer',
+                'is_staff': False,
+                'is_superuser': False,
+            }
+        )
+        customer_user.set_password('customer1234')
+        customer_user.email = 'customer@kenakata.com'
+        customer_user.save()
+        UserProfile.objects.get_or_create(user=customer_user, defaults={'mobile': '01700000003', 'division': 'dhaka'})
+        self.stdout.write('  [+] 3 Demo users initialized (admin, staff, customer)')
 
     def _create_brands(self):
         from catalog.models import Brand
