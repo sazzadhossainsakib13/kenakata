@@ -9,12 +9,18 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-kenakat-bd-$q5utl833*c#6rjp@jmusczf4p93^1gjjxc=frc0f8e*7!$wv#')
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    # We shouldn't use a hardcoded key in production. Generate a random one for dev, or raise error.
+    # To keep it simple for the user's dev env if they didn't set it, we generate a fallback, but warn.
+    import warnings
+    warnings.warn("SECRET_KEY environment variable is not set. Using a fallback key. DO NOT USE IN PRODUCTION.")
+    SECRET_KEY = 'django-insecure-kenakat-bd-$q5utl833*c#6rjp@jmusczf4p93^1gjjxc=frc0f8e*7!$wv#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', '*').split(',') if h.strip()]
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',') if h.strip()]
 
 # Application definition
 INSTALLED_APPS = [
