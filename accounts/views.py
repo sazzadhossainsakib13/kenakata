@@ -5,19 +5,16 @@ from django.contrib import messages
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.core.cache import cache
 from .models import UserProfile
+from .utils import normalize_bd_mobile, validate_bd_mobile
 import re
 
 
-def validate_bd_mobile(mobile):
-    cleaned = re.sub(r'[\s\-\(\)]', '', mobile)
-    pattern = r'^(\+880|880|0)?1[3-9]\d{8}$'
-    return bool(re.match(pattern, cleaned))
-
-
 def get_client_ip(request):
-    """Retrieve client IP address securely."""
+    """Retrieve client IP address safely considering reverse proxies."""
+    # Behind reverse proxy like Render
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
+        # Get the leftmost non-empty IP from client
         ip = x_forwarded_for.split(',')[0].strip()
     else:
         ip = request.META.get('REMOTE_ADDR')
@@ -48,12 +45,15 @@ def register_view(request):
         if not email:
             errors.append("Email is required.")
             field_errors['email'] = "Email is required."
+        
+        norm_mobile = normalize_bd_mobile(mobile)
         if not mobile:
             errors.append("Mobile number is required.")
             field_errors['mobile'] = "Mobile number is required."
-        elif not validate_bd_mobile(mobile):
-            errors.append("Please enter a valid Bangladesh mobile number (01XXXXXXXXX).")
-            field_errors['mobile'] = "Please enter a valid Bangladesh mobile number (01XXXXXXXXX)."
+        elif not norm_mobile:
+            errors.append("Please enter a valid Bangladesh mobile number (e.g., 01XXXXXXXXX).")
+            field_errors['mobile'] = "Please enter a valid Bangladesh mobile number (e.g., 01XXXXXXXXX)."
+
         if not password:
             errors.append("Password is required.")
             field_errors['password'] = "Password is required."
@@ -63,6 +63,8 @@ def register_view(request):
         if password != confirm_password:
             errors.append("Passwords do not match.")
             field_errors['confirm_password'] = "Passwords do not match."
+
+        # Check existing account without leaking unnecessary existence info
         if User.objects.filter(email__iexact=email).exists() or User.objects.filter(username__iexact=email).exists():
             errors.append("An account with this email already exists.")
             field_errors['email'] = "An account with this email already exists."
@@ -76,7 +78,7 @@ def register_view(request):
                 'errors': errors,
             })
 
-        # Create user
+        # Create user with normalized mobile
         user = User.objects.create_user(
             username=email,
             email=email,
@@ -84,7 +86,7 @@ def register_view(request):
             first_name=first_name,
             last_name=last_name,
         )
-        UserProfile.objects.get_or_create(user=user, defaults={'mobile': mobile})
+        UserProfile.objects.get_or_create(user=user, defaults={'mobile': norm_mobile})
         login(request, user)
         messages.success(request, f"Welcome to KenaKata, {first_name}! Your account has been created.")
         return redirect('dashboard:home')
@@ -139,11 +141,11 @@ def login_view(request):
                 if user:
                     break
 
-        # 3. Try matching by mobile phone number
+        # 3. Try matching by exact normalized Bangladesh mobile phone number
         if not user:
-            clean_phone = re.sub(r'[\s\-\(\)]', '', login_input)
-            if clean_phone:
-                profile = UserProfile.objects.filter(mobile__icontains=clean_phone[-10:]).first()
+            norm_phone = normalize_bd_mobile(login_input)
+            if norm_phone:
+                profile = UserProfile.objects.filter(mobile=norm_phone).select_related('user').first()
                 if profile and profile.user:
                     user = authenticate(request, username=profile.user.username, password=password)
 

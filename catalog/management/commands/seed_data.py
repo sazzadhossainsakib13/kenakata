@@ -22,16 +22,18 @@ class Command(BaseCommand):
         self._create_banners()
         self._create_pos_demo_data()
         self.stdout.write(self.style.SUCCESS('Demo data and demo accounts seeded successfully!'))
-        self.stdout.write(self.style.SUCCESS('  Admin: admin / admin1234 (admin@kenakata.com)'))
-        self.stdout.write(self.style.SUCCESS('  Staff: staff / staff1234 (staff@kenakata.com)'))
-        self.stdout.write(self.style.SUCCESS('  User:  customer / customer1234 (customer@kenakata.com)'))
+        self.stdout.write(self.style.SUCCESS('  Admin: admin (Use createsuperuser or set DJANGO_SUPERUSER_PASSWORD)'))
+        self.stdout.write(self.style.SUCCESS('  Staff: staff'))
+        self.stdout.write(self.style.SUCCESS('  User:  customer'))
 
     def _create_demo_users(self):
         from django.contrib.auth.models import User
         from accounts.models import UserProfile
+        import os
+        import secrets
 
         # 1. Admin / Superuser
-        admin_user, _ = User.objects.get_or_create(
+        admin_user, admin_created = User.objects.get_or_create(
             username='admin',
             defaults={
                 'email': 'admin@kenakata.com',
@@ -41,15 +43,20 @@ class Command(BaseCommand):
                 'is_superuser': True,
             }
         )
-        admin_user.set_password('admin1234')
-        admin_user.is_staff = True
-        admin_user.is_superuser = True
-        admin_user.email = 'admin@kenakata.com'
-        admin_user.save()
-        UserProfile.objects.get_or_create(user=admin_user, defaults={'mobile': '01700000001', 'division': 'dhaka'})
+        if admin_created:
+            admin_pwd = os.environ.get('DJANGO_SUPERUSER_PASSWORD')
+            if not admin_pwd:
+                admin_pwd = secrets.token_urlsafe(16)
+                self.stdout.write(self.style.WARNING(f"  [!] Admin user generated with temporary password: {admin_pwd}"))
+            admin_user.set_password(admin_pwd)
+            admin_user.is_staff = True
+            admin_user.is_superuser = True
+            admin_user.email = 'admin@kenakata.com'
+            admin_user.save()
+            UserProfile.objects.get_or_create(user=admin_user, defaults={'mobile': '01700000001', 'division': 'dhaka'})
 
         # 2. Staff / POS Cashier
-        staff_user, _ = User.objects.get_or_create(
+        staff_user, staff_created = User.objects.get_or_create(
             username='staff',
             defaults={
                 'email': 'staff@kenakata.com',
@@ -59,10 +66,13 @@ class Command(BaseCommand):
                 'is_superuser': False,
             }
         )
-        staff_user.set_password('staff1234')
-        staff_user.is_staff = True
-        staff_user.email = 'staff@kenakata.com'
-        staff_user.save()
+        if staff_created:
+            staff_pwd = os.environ.get('DEMO_STAFF_PASSWORD', 'staff1234')
+            staff_user.set_password(staff_pwd)
+            staff_user.is_staff = True
+            staff_user.email = 'staff@kenakata.com'
+            staff_user.save()
+            UserProfile.objects.get_or_create(user=staff_user, defaults={'mobile': '01700000002', 'division': 'dhaka'})
         UserProfile.objects.get_or_create(user=staff_user, defaults={'mobile': '01700000002', 'division': 'dhaka'})
 
         # 3. Regular Customer

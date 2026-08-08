@@ -7,25 +7,8 @@ from .models import Order, OrderItem
 from cart.utils import get_or_create_cart
 from catalog.models import Product
 from accounts.models import Address, BANGLADESH_DIVISIONS
+from accounts.utils import normalize_bd_mobile, validate_bd_mobile
 from decimal import Decimal
-import re
-
-
-def validate_bd_mobile(mobile):
-    """Validate Bangladesh mobile number."""
-    cleaned = re.sub(r'[\s\-\(\)]', '', mobile)
-    pattern = r'^(\+880|880|0)?1[3-9]\d{8}$'
-    return bool(re.match(pattern, cleaned))
-
-
-def normalize_mobile(mobile):
-    """Normalize mobile to 01XXXXXXXXX format."""
-    cleaned = re.sub(r'[\s\-\(\)]', '', mobile)
-    if cleaned.startswith('+880'):
-        cleaned = '0' + cleaned[4:]
-    elif cleaned.startswith('880'):
-        cleaned = '0' + cleaned[3:]
-    return cleaned
 
 
 @login_required
@@ -58,18 +41,27 @@ def checkout(request):
         delivery_instructions = request.POST.get('delivery_instructions', '').strip()
         save_address = request.POST.get('save_address')
 
-        # Validate
+        # Robust validation with defined field_errors dict
         errors = []
+        field_errors = {}
         if not recipient_name:
             errors.append("Recipient name is required.")
+            field_errors['recipient_name'] = "Recipient name is required."
+        
+        norm_mobile = normalize_bd_mobile(mobile)
         if not mobile:
             errors.append("Mobile number is required.")
-        elif not validate_bd_mobile(mobile):
+            field_errors['mobile'] = "Mobile number is required."
+        elif not norm_mobile:
             errors.append("Please enter a valid Bangladesh mobile number (e.g., 01XXXXXXXXX).")
+            field_errors['mobile'] = "Please enter a valid Bangladesh mobile number (e.g., 01XXXXXXXXX)."
+
         if not division:
             errors.append("Division is required.")
+            field_errors['division'] = "Division is required."
         if not district:
             errors.append("District is required.")
+            field_errors['district'] = "District is required."
 
         if errors:
             for error in errors:
@@ -79,10 +71,12 @@ def checkout(request):
             context['errors'] = errors
             return render(request, 'orders/checkout.html', context)
 
-        mobile = normalize_mobile(mobile)
+        mobile = norm_mobile
 
         # Determine delivery zone
-        delivery_zone = 'inside_dhaka' if division.lower() == 'dhaka' and district.lower() == 'dhaka' else 'outside_dhaka'
+        division_val = str(division).strip().lower()
+        district_val = str(district).strip().lower()
+        delivery_zone = 'inside_dhaka' if division_val == 'dhaka' and (not district_val or district_val == 'dhaka') else 'outside_dhaka'
         charges = getattr(settings, 'DELIVERY_CHARGES', {'inside_dhaka': 60, 'outside_dhaka': 120})
         shipping_cost = Decimal(str(charges.get(delivery_zone, 120)))
         estimated_delivery = '1–2 business days' if delivery_zone == 'inside_dhaka' else '3–5 business days'
@@ -93,12 +87,11 @@ def checkout(request):
 
         try:
             with transaction.atomic():
-                # Re-validate products and prices from DB
+                # Re-validate products and prices from DB with lock to prevent race conditions
                 subtotal = Decimal('0.00')
                 order_items_data = []
 
                 for item in items:
-                    # Fresh product data
                     try:
                         product = Product.objects.select_for_update().get(id=item.product_id, active=True)
                     except Product.DoesNotExist:
@@ -186,7 +179,7 @@ def checkout(request):
                         new_stock=item_data['product'].stock,
                         reference_type='Order',
                         reference_id=order.order_number,
-                        staff=request.user if request.user.is_authenticated else None,
+                        staff=request.user,
                         reason=f"Online e-commerce sale ({order.order_number})"
                     )
 
@@ -219,7 +212,6 @@ def checkout(request):
                 cart.coupon = None
                 cart.save()
 
-                request.session['last_order_number'] = order.order_number
                 return redirect('orders:order_success', order_number=order.order_number)
 
         except ValueError as e:
@@ -298,21 +290,12 @@ def _get_checkout_context(request, cart, items, saved_addresses, default_address
     }
 
 
+@login_required
 def order_success(request, order_number):
-    order = None
-    if request.user.is_authenticated:
-        order = Order.objects.filter(order_number__iexact=order_number, user=request.user).first()
-        if not order and (request.user.is_staff or request.user.is_superuser):
-            order = Order.objects.filter(order_number__iexact=order_number).first()
-
-    if not order:
-        last_order_num = request.session.get('last_order_number')
-        if last_order_num and last_order_num.lower() == str(order_number).lower():
-            order = Order.objects.filter(order_number__iexact=order_number).first()
-
-    if not order:
-        messages.error(request, f"Order #{order_number} not found or you do not have permission to view it.")
-        return redirect('orders:order_list' if request.user.is_authenticated else 'core:home')
+    if request.user.is_staff or request.user.is_superuser:
+        order = get_object_or_404(Order, order_number__iexact=order_number)
+    else:
+        order = get_object_or_404(Order, order_number__iexact=order_number, user=request.user)
 
     return render(request, 'orders/order_success.html', {'order': order, 'order_number': order.order_number})
 

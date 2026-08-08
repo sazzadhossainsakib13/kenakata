@@ -40,7 +40,10 @@ def my_orders(request):
 
 @login_required
 def order_detail(request, order_number):
-    order = get_object_or_404(Order, order_number=order_number, user=request.user)
+    if request.user.is_staff or request.user.is_superuser:
+        order = get_object_or_404(Order, order_number=order_number)
+    else:
+        order = get_object_or_404(Order, order_number=order_number, user=request.user)
     tracking_steps = order.get_status_display_steps()
     return render(request, 'dashboard/order_detail.html', {
         'order': order,

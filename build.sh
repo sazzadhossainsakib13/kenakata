@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
-# exit on error
+# Exit on error
 set -o errexit
 
 pip install -r requirements.txt
 
-python manage.py makemigrations --noinput
+# Database schema migrations & static file asset collection
 python manage.py migrate --noinput
 python manage.py collectstatic --noinput
-python manage.py seed_data || true
+
+# Optional seed demo data on explicit environment request
+if [ "$SEED_DEMO_DATA" = "true" ] || [ "$SEED_DEMO_DATA" = "1" ]; then
+    python manage.py seed_data
+fi

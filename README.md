@@ -41,14 +41,13 @@ When a cashier completes a sale at the physical retail store using the barcode P
 | **Inventory Manager** | [`/pos/products/`](https://kenakata-o6l6.onrender.com/pos/products/) | Manage SKUs, pricing, stock levels, and real-time inventory adjustments |
 | **Store Settings** | [`/pos/settings/`](https://kenakata-o6l6.onrender.com/pos/settings/) | Cash drawer management, VAT rates, and low stock thresholds |
 
-#### 🔑 Ready-to-Use Demo Login Credentials:
-You can log in at [`/auth/login/`](https://kenakata-o6l6.onrender.com/auth/login/) or [`/admin/`](https://kenakata-o6l6.onrender.com/admin/) using either **Username**, **Email**, or **Mobile**:
+#### 🔑 Administrative & Staff Access:
+Access to administrative and staff tools is secured via Django's authentication and permission system:
+* **Admin Login**: [`/admin/`](https://kenakata-o6l6.onrender.com/admin/) (Access via superuser created via `python manage.py createsuperuser` or `DJANGO_SUPERUSER_PASSWORD` env var).
+* **POS Terminal**: [`/pos/terminal/`](https://kenakata-o6l6.onrender.com/pos/terminal/) (Staff or Superuser account access).
 
-| Role / Access Level | Username / Email | Password | Permissions & Capabilities |
-| :--- | :--- | :--- | :--- |
-| **👑 Super Admin / Owner** | `admin` or `admin@kenakata.com` | `admin1234` | Full Django Admin (`/admin/`), POS Terminal, Inventory, Sales Analytics & Settings |
-| **🏪 Store Staff / Cashier** | `staff` or `staff@kenakata.com` | `staff1234` | POS Barcode Terminal (`/pos/terminal/`), Cashier Register, Online/Offline Orders |
-| **🛍️ Customer / Buyer** | `customer` or `customer@kenakata.com` | `customer1234` | Storefront, Cart, Checkout, Wishlist, Order History & Address Book |
+> [!IMPORTANT]
+> **Production Security Notice**: Never commit credentials or production keys. Set `SECRET_KEY`, `DJANGO_SUPERUSER_PASSWORD`, and `DATABASE_URL` as secure environment variables in your hosting provider (e.g., Render dashboard). If any credentials or `SECRET_KEY` were previously exposed in earlier commits, rotate them immediately in your production environment.
 
 ---
 
@@ -193,7 +192,7 @@ kenakata/
 
 6. **Access Locally**
    - Public Storefront: `http://127.0.0.1:8000/`
-   - Admin Back-Office: `http://127.0.0.1:8000/admin/` (Login: `admin` / `admin1234`)
+   - Admin Back-Office: `http://127.0.0.1:8000/admin/` (Create superuser: `python manage.py createsuperuser`)
    - POS Terminal: `http://127.0.0.1:8000/pos/terminal/`
 
 ---
